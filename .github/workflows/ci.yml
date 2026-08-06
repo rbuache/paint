@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same branch makes the in-flight run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.44.8"
+
+jobs:
+  analyze:
+    name: Analyze and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install Linux desktop build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Check the generated localizations are up to date
+        # Regenerating must be a no-op; a stale generated file means someone
+        # edited the ARB without running gen-l10n.
+        run: |
+          flutter gen-l10n
+          if ! git diff --quiet -- lib/l10n/generated; then
+            echo "::error::lib/l10n/generated is stale — run 'flutter gen-l10n'"
+            git --no-pager diff -- lib/l10n/generated
+            exit 1
+          fi
+
+      - name: Check for hardcoded user-facing strings
+        # Every string the user can read has to come from AppLocalizations, or
+        # translating the app later means auditing the whole UI by hand.
+        run: bash tools/check_hardcoded_strings.sh
+
+      - name: Test
+        run: flutter test --coverage
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+
+  build:
+    name: Build and package
+    runs-on: ubuntu-latest
+    # Release binaries are built against glibc 2.35 so they run on Ubuntu
+    # 22.04+ and Debian 12+. Building on the runner's own 24.04 would hard-
+    # require glibc 2.39 and exclude every one of those.
+    container: ubuntu:22.04
+    steps:
+      - name: Install toolchain
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            ca-certificates curl git unzip xz-utils zip \
+            clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev \
+            dpkg-dev apt-utils file desktop-file-utils lintian
+
+      - uses: actions/checkout@v4
+
+      - name: Trust the workspace
+        # The container runs as root while the checkout is owned by the runner
+        # user, which git refuses to touch without this.
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Build release bundle
+        run: flutter build linux --release
+
+      - name: Build the Debian package
+        run: bash packaging/build_deb.sh
+
+      - name: Validate the package
+        run: |
+          desktop-file-validate packaging/deb/io.github.rbuache.Paint.desktop
+          # Lintian findings are informational here: several of its policy
+          # checks do not apply to a self-contained bundled application.
+          lintian --no-tag-display-limit build/dist/*.deb || true
+          dpkg-deb --contents build/dist/*.deb | head -40
+
+      - name: Smoke-test the install
+        run: |
+          apt-get install -y ./build/dist/*.deb
+          test -x /usr/bin/paint
+          test -f /usr/share/applications/io.github.rbuache.Paint.desktop
+          test -f /usr/share/icons/hicolor/256x256/apps/io.github.rbuache.Paint.png
+          test -f /usr/share/man/man1/paint.1.gz
+          echo "installed files look right"
+
+      - name: Package the portable tarball
+        run: |
+          VERSION="$(bash tools/set_version.sh)"
+          mkdir -p build/dist
+          tar -czf "build/dist/paint-${VERSION}-linux-x64.tar.gz" \
+            -C build/linux/x64/release/bundle .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: build/dist/*
+          if-no-files-found: error
