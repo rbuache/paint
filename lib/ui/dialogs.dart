@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:slate_ui/slate_ui.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../ops/transform_ops.dart';
-import '../slate/slate.dart';
 
 /// Result of the New Image dialog.
 class NewImageSpec {

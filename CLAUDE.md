@@ -114,12 +114,14 @@ you are running — it matches your own shell and kills the session.
    key here stops it reaching the text input plugin. If you add an unmodified
    shortcut, put it inside that guard in `lib/ui/app_shell.dart`.
 
-11. **`lib/slate/` knows nothing about this application.** It is a widget kit
-   destined to become its own package: no controllers, no models, no
-   `AppLocalizations`, no image-editor concepts, and no user-facing string
-   literals — every label and tooltip is a parameter. Reach for a Material
-   widget in `lib/ui/` only when the kit genuinely has no equivalent, and add
-   the equivalent instead when it plausibly should.
+11. **The widget kit is its own package now.** Everything is drawn with
+   `slate_ui`, pinned to a tag in `pubspec.yaml`. Reach for a Material widget in
+   `lib/ui/` only when the kit genuinely has no equivalent; when it plausibly
+   should have one, add it in
+   [alpinsuite/ui-kit](https://github.com/alpinsuite/ui-kit), release it, and
+   bump the `ref` here. That is more ceremony than editing the widget in place
+   was, and it is the point — the interface has a version number, and a change
+   to it is something this application opts into.
 
 ## Layout
 
@@ -131,14 +133,14 @@ lib/controller/ DocumentController, SelectionController, ViewportController,
 lib/tools/      Tool + ToolGesture, one file per family
 lib/ops/        pure pixel operations (flood fill, transforms)
 lib/io/         codecs, file dialogs, clipboard
-lib/slate/      the widget kit everything is drawn with — see lib/slate/README.md
 lib/ui/         widgets; AppActions is the single home for every command
 packaging/      deb, AppImage, APT repo, icons
 tools/          set_version.sh, check_hardcoded_strings.sh
 ```
 
-Dependency direction is one-way: `ui` → `controller` → `model`/`ops`/`core`, and
-`ui` → `slate`. Nothing goes the other way.
+Dependency direction is one-way: `ui` → `controller` → `model`/`ops`/`core`.
+Nothing goes the other way. `ui` also depends on the `slate_ui` package, which
+by construction depends on nothing here.
 
 `AppActions` is where every user command is implemented once, so the menu, the
 shortcuts and any future toolbar all behave identically. Add commands there, not
