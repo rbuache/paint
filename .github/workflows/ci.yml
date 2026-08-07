@@ -87,10 +87,12 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Trust the workspace
-        # The container runs as root while the checkout is owned by the runner
-        # user, which git refuses to touch without this.
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Trust the container's git directories
+        # The job runs as root while the checkout and the Flutter SDK are owned
+        # by other uids, and git refuses to touch either without this. The
+        # wildcard covers the SDK, which flutter-action installs later, and the
+        # pub cache; the container is ephemeral, so its scope costs nothing.
+        run: git config --global --add safe.directory '*'
 
       - uses: subosito/flutter-action@v2
         with:

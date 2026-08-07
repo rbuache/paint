@@ -39,7 +39,12 @@ jobs:
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
 
-      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Trust the container's git directories
+        # The job runs as root while the checkout and the Flutter SDK are owned
+        # by other uids, and git refuses to touch either without this. The
+        # wildcard covers the SDK, which flutter-action installs later, and the
+        # pub cache; the container is ephemeral, so its scope costs nothing.
+        run: git config --global --add safe.directory '*'
 
       - name: Read the version and check it matches the tag
         id: version

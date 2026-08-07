@@ -135,6 +135,12 @@ in the widgets.
 - `flutter build linux` on Ubuntu 24.04 produces a binary needing glibc 2.39.
   Release builds must run in an `ubuntu:22.04` container; see
   [docs/PACKAGING.md](docs/PACKAGING.md).
+- That container is a bare image running as root, which costs two things CI had
+  to be taught: `subosito/flutter-action` shells out to `jq`, which is not
+  installed, and git refuses both the checkout and the Flutter SDK as
+  "dubious ownership" until `safe.directory` is set. Both are handled in
+  `.github/workflows/`; add anything similar there rather than working around it
+  in a build script.
 - `package:image` cannot encode WebP or PSD — decode only. `ImageCodecs` already
   models this with `canEncode`.
 - `super_clipboard` needs a Rust toolchain; `pasteboard` is used instead.
