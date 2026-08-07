@@ -129,23 +129,35 @@ class AppActions {
   void redo() => _documents.redo();
 
   /// Copies the selection, or the whole image when there is none.
-  Future<void> copy() async {
-    if (!_documents.isReady) return;
+  ///
+  /// Returns whether the clipboard actually took it, so callers can report a
+  /// failure rather than implying a copy that did not happen.
+  Future<bool> copy() async {
+    if (!_documents.isReady) return false;
+
+    var written = false;
     if (_selections.hasSelection) {
       final pixels = await _selections.extractPixels();
-      if (pixels == null) return;
+      if (pixels == null) return false;
       try {
-        await ClipboardService.writeImage(pixels);
+        written = await ClipboardService.writeImage(pixels);
       } finally {
         pixels.dispose();
       }
-      return;
+    } else {
+      written = await ClipboardService.writeImage(
+        _documents.document.activeImage,
+      );
     }
-    await ClipboardService.writeImage(_documents.document.activeImage);
+
+    if (!written) _showMessage(_l10n.errorClipboardWriteFailed);
+    return written;
   }
 
   Future<void> cut() async {
-    await copy();
+    // Only remove the pixels once they are safely on the clipboard, or a failed
+    // copy would destroy them.
+    if (!await copy()) return;
     if (_selections.hasSelection) {
       await _selections.deleteSelection(eraseColor: _eraseColor);
       await _selections.deselect();

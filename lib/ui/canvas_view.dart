@@ -81,26 +81,25 @@ class CanvasView extends StatelessWidget {
     );
   }
 
-  /// Ctrl+wheel zooms around the pointer; a plain wheel scrolls the image.
+  /// The wheel zooms around the pointer; Shift+wheel scrolls sideways.
+  ///
+  /// Zoom is the default because it is what the wheel is for in an image
+  /// editor. Panning is still available by dragging with the middle button,
+  /// which works at any zoom and in any direction.
   static void _onPointerSignal(
     PointerSignalEvent event,
     ViewportController viewport,
   ) {
     if (event is! PointerScrollEvent) return;
-    final zooming = HardwareKeyboard.instance.isControlPressed;
-    if (zooming) {
-      final factor = event.scrollDelta.dy < 0 ? 1.15 : 1 / 1.15;
-      viewport.zoomTo(viewport.zoom * factor, focalPoint: event.localPosition);
-    } else {
-      final delta = HardwareKeyboard.instance.isShiftPressed
-          ? ui.Offset(-event.scrollDelta.dy, 0)
-          : ui.Offset(-event.scrollDelta.dx, -event.scrollDelta.dy);
-      viewport.panBy(delta);
+    if (HardwareKeyboard.instance.isShiftPressed) {
+      viewport.panBy(ui.Offset(-event.scrollDelta.dy, 0));
+      return;
     }
+    final factor = event.scrollDelta.dy < 0 ? 1.15 : 1 / 1.15;
+    viewport.zoomTo(viewport.zoom * factor, focalPoint: event.localPosition);
   }
 }
 
-/// The in-place text editor shown while the text tool has an open session.
 class _TextOverlay extends StatelessWidget {
   const _TextOverlay({required this.session});
 

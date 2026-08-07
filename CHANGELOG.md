@@ -7,6 +7,36 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- A **Copy** button in the bottom-right corner, next to the zoom controls, so a
+  quick sketch can go straight onto the clipboard and into a chat or document
+  without opening a menu. It copies the selection when there is one and the
+  whole image otherwise, and confirms in place for a couple of seconds.
+
+### Changed
+
+- The mouse wheel now zooms around the pointer instead of scrolling. Shift and
+  the wheel scrolls sideways, and dragging with the middle button still pans in
+  any direction.
+
+### Fixed
+
+- **Copying an image to the clipboard never worked.** The clipboard package
+  used for it does not implement image writing on Linux and silently reported
+  "not implemented", so Copy and Cut appeared to succeed and put nothing
+  anywhere. The application now writes the clipboard through GTK directly, and
+  reports a failure instead of claiming a copy that did not happen. Cut no
+  longer deletes the pixels unless the copy succeeded.
+- **Zooming in made the window unresponsive.** The transparency checkerboard
+  was drawn across the whole scaled image rather than the visible area, which
+  at 6400% on a 640x440 image meant about nine million squares per frame.
+- **Zooming in painted over the rest of the interface.** The canvas did not
+  clip to its own bounds, so at high zoom the image covered the menu bar, the
+  tool palette and the colour panel, and swallowed clicks meant for them.
+- Selection outlines no longer generate tens of thousands of dashes per frame
+  on a large selection at high zoom.
+
 ## [0.1.0] - 2026-08-06
 
 First release: a complete, usable editor with parity against classic MS Paint.

@@ -904,6 +904,30 @@ abstract class AppLocalizations {
   /// **'{percent}%'**
   String statusZoom(int percent);
 
+  /// No description provided for @actionCopyToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get actionCopyToClipboard;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copiedToClipboard;
+
+  /// No description provided for @copyImageTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the whole image to the clipboard, ready to paste elsewhere  (Ctrl+C)'**
+  String get copyImageTooltip;
+
+  /// No description provided for @copySelectionTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the selection to the clipboard, ready to paste elsewhere  (Ctrl+C)'**
+  String get copySelectionTooltip;
+
   /// No description provided for @dropHint.
   ///
   /// In en, this message translates to:
@@ -969,6 +993,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The clipboard does not contain an image.'**
   String get errorClipboardEmpty;
+
+  /// No description provided for @errorClipboardWriteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not put the image on the clipboard.'**
+  String get errorClipboardWriteFailed;
 
   /// No description provided for @errorImageTooLarge.
   ///

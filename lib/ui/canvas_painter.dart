@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -23,6 +24,14 @@ class CanvasPainter extends CustomPainter {
   /// pattern reads as "behind the image" rather than as image content.
   static const double checkerSize = 8;
 
+  /// Ceiling on dashes per selection outline.
+  ///
+  /// The dash length is expressed in image units so the dashes keep a constant
+  /// on-screen size, which means a long outline at high zoom would otherwise
+  /// generate tens of thousands of sub-paths every frame. Past this many, the
+  /// dashes simply grow.
+  static const int maxDashesPerContour = 400;
+
   final PaintDocument document;
   final ViewportController viewport;
   final ToolGesture? gesture;
@@ -31,12 +40,18 @@ class CanvasPainter extends CustomPainter {
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
+    // CustomPaint does not clip to its own box, and the image rectangle grows
+    // with the zoom: at 6400% it is tens of thousands of pixels across, so
+    // without this the canvas paints straight over the menu bar, the tool
+    // palette and the colour panel and swallows their clicks.
+    canvas.clipRect(ui.Offset.zero & size);
+
     canvas.drawRect(ui.Offset.zero & size, ui.Paint()..color = colors.backdrop);
 
     final imageRect = viewport.imageScreenRect;
     if (imageRect.isEmpty) return;
 
-    _paintCheckerboard(canvas, imageRect);
+    _paintCheckerboard(canvas, imageRect, size);
 
     final zoom = viewport.zoom;
     // Crisp pixels once magnified — a paint program that blurs at 800% is
@@ -157,8 +172,9 @@ class CanvasPainter extends CustomPainter {
     for (final metric in source.computeMetrics()) {
       var distance = 0.0;
       var draw = true;
+      final step = math.max(dashLength, metric.length / maxDashesPerContour);
       while (distance < metric.length) {
-        final next = distance + dashLength;
+        final next = distance + step;
         if (draw) {
           result.addPath(
             metric.extractPath(distance, next.clamp(0, metric.length)),
@@ -172,27 +188,34 @@ class CanvasPainter extends CustomPainter {
     return result;
   }
 
-  void _paintCheckerboard(ui.Canvas canvas, ui.Rect imageRect) {
+  void _paintCheckerboard(ui.Canvas canvas, ui.Rect imageRect, ui.Size size) {
+    // Only the part actually on screen is worth drawing. Iterating the whole
+    // image rectangle costs millions of squares once zoomed in — a 640x440
+    // image at 6400% spans 40960x28160 logical pixels, which is about nine
+    // million squares per frame and freezes the window.
+    final visible = imageRect.intersect(ui.Offset.zero & size);
+    if (visible.isEmpty) return;
+
     canvas.save();
-    canvas.clipRect(imageRect);
-    canvas.drawRect(imageRect, ui.Paint()..color = colors.checkerLight);
+    canvas.clipRect(visible);
+    canvas.drawRect(visible, ui.Paint()..color = colors.checkerLight);
 
     final dark = ui.Paint()..color = colors.checkerDark;
-    // Anchor the pattern to the image origin so it does not crawl while
-    // panning.
-    final startX =
-        imageRect.left -
-        (imageRect.left - viewport.origin.dx) % (checkerSize * 2);
-    final startY =
-        imageRect.top -
-        (imageRect.top - viewport.origin.dy) % (checkerSize * 2);
+    const period = checkerSize * 2;
 
-    for (var y = startY; y < imageRect.bottom; y += checkerSize) {
-      final rowOdd = (((y - startY) / checkerSize).round() % 2) == 1;
+    // Phase the pattern on the image origin rather than on the visible area,
+    // so the squares stay put instead of crawling while panning.
+    final phaseX = viewport.origin.dx;
+    final phaseY = viewport.origin.dy;
+    final startX = visible.left - (visible.left - phaseX) % period;
+    final startY = visible.top - (visible.top - phaseY) % period;
+
+    for (var y = startY; y < visible.bottom; y += checkerSize) {
+      final rowOdd = (((y - phaseY) / checkerSize).round() % 2) == 1;
       for (
         var x = startX + (rowOdd ? checkerSize : 0);
-        x < imageRect.right;
-        x += checkerSize * 2
+        x < visible.right;
+        x += period
       ) {
         canvas.drawRect(ui.Rect.fromLTWH(x, y, checkerSize, checkerSize), dark);
       }

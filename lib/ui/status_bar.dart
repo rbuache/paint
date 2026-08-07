@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -5,9 +6,11 @@ import 'package:provider/provider.dart';
 
 import '../controller/canvas_controller.dart';
 import '../controller/document_controller.dart';
+import '../controller/selection_controller.dart';
 import '../controller/viewport_controller.dart';
 import '../core/theme/app_theme.dart';
 import '../l10n/generated/app_localizations.dart';
+import 'app_actions.dart';
 
 /// Cursor position, image size and zoom, along the bottom edge.
 class StatusBar extends StatelessWidget {
@@ -84,6 +87,15 @@ class StatusBar extends StatelessWidget {
             tooltip: l10n.actionZoomNormal,
             onPressed: viewport.zoomToActualSize,
           ),
+          const SizedBox(width: 8),
+          VerticalDivider(
+            width: 1,
+            indent: 7,
+            endIndent: 7,
+            color: scheme.outlineVariant,
+          ),
+          const SizedBox(width: 8),
+          const CopyToClipboardButton(),
         ],
       ),
     );
@@ -107,5 +119,81 @@ class StatusBar extends StatelessWidget {
     final min = math.log(ViewportController.minZoom);
     final max = math.log(ViewportController.maxZoom);
     return math.exp(min + slider * (max - min));
+  }
+}
+
+/// Puts the drawing on the system clipboard, ready to paste into a chat, a
+/// document or anything else.
+///
+/// It sits in the corner rather than only in the Edit menu because the common
+/// reason to open this editor at all is to sketch something quickly and paste
+/// it somewhere; burying that behind a menu makes the fastest path the least
+/// discoverable one. The work is delegated to [AppActions.copy], so the button,
+/// the menu item and Ctrl+C are one implementation.
+class CopyToClipboardButton extends StatefulWidget {
+  const CopyToClipboardButton({super.key});
+
+  /// How long the button stays in its confirming state.
+  static const Duration confirmationDuration = Duration(seconds: 2);
+
+  @override
+  State<CopyToClipboardButton> createState() => _CopyToClipboardButtonState();
+}
+
+class _CopyToClipboardButtonState extends State<CopyToClipboardButton> {
+  bool _copied = false;
+  Timer? _reset;
+
+  @override
+  void dispose() {
+    _reset?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _copy() async {
+    final copied = await AppActions(context).copy();
+    // A failed copy reports itself through a message; confirming here too would
+    // contradict it.
+    if (!mounted || !copied) return;
+    // Confirming in place rather than with a snack bar: a snack bar would cover
+    // this corner of the window, and the feedback belongs on the control that
+    // was pressed.
+    setState(() => _copied = true);
+    _reset?.cancel();
+    _reset = Timer(CopyToClipboardButton.confirmationDuration, () {
+      if (mounted) setState(() => _copied = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final hasSelection = context.watch<SelectionController>().hasSelection;
+
+    return Tooltip(
+      message: hasSelection ? l10n.copySelectionTooltip : l10n.copyImageTooltip,
+      child: TextButton.icon(
+        onPressed: _copy,
+        icon: Icon(
+          _copied ? Icons.check : Icons.content_copy_outlined,
+          size: 15,
+          color: _copied ? scheme.primary : null,
+        ),
+        label: Text(
+          _copied ? l10n.copiedToClipboard : l10n.actionCopyToClipboard,
+          style: TextStyle(
+            fontSize: 12,
+            color: _copied ? scheme.primary : null,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          minimumSize: const Size(0, 26),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+      ),
+    );
   }
 }

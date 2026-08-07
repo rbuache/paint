@@ -428,6 +428,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get actionCopyToClipboard => 'Copy';
+
+  @override
+  String get copiedToClipboard => 'Copied';
+
+  @override
+  String get copyImageTooltip =>
+      'Copy the whole image to the clipboard, ready to paste elsewhere  (Ctrl+C)';
+
+  @override
+  String get copySelectionTooltip =>
+      'Copy the selection to the clipboard, ready to paste elsewhere  (Ctrl+C)';
+
+  @override
   String get dropHint => 'Drop an image to open it';
 
   @override
@@ -468,6 +482,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorClipboardEmpty => 'The clipboard does not contain an image.';
+
+  @override
+  String get errorClipboardWriteFailed =>
+      'Could not put the image on the clipboard.';
 
   @override
   String errorImageTooLarge(int max) {

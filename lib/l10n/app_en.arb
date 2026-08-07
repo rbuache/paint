@@ -186,6 +186,11 @@
     "placeholders": { "percent": { "type": "int", "example": "100" } }
   },
 
+  "actionCopyToClipboard": "Copy",
+  "copiedToClipboard": "Copied",
+  "copyImageTooltip": "Copy the whole image to the clipboard, ready to paste elsewhere  (Ctrl+C)",
+  "copySelectionTooltip": "Copy the selection to the clipboard, ready to paste elsewhere  (Ctrl+C)",
+
   "dropHint": "Drop an image to open it",
   "dropHintPaste": "Hold Shift while dropping to paste into the current image",
 
@@ -211,6 +216,7 @@
     "placeholders": { "extension": { "type": "String", "example": ".webp" } }
   },
   "errorClipboardEmpty": "The clipboard does not contain an image.",
+  "errorClipboardWriteFailed": "Could not put the image on the clipboard.",
   "errorImageTooLarge": "The image is too large. The maximum size is {max} × {max} pixels.",
   "@errorImageTooLarge": {
     "placeholders": { "max": { "type": "int", "example": "20000" } }
