@@ -5,7 +5,7 @@ publish_to: "none"
 # Single source of truth for the application version.
 # `tools/set_version.sh` propagates this value to the Debian control file,
 # the AppStream metainfo and the About dialog. See docs/RELEASING.md.
-version: 0.1.0+1
+version: 0.1.0+2
 
 environment:
   sdk: ^3.12.2

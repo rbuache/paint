@@ -7,53 +7,7 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Added
-
-- A **Copy** button in the bottom-right corner, next to the zoom controls, so a
-  quick sketch can go straight onto the clipboard and into a chat or document
-  without opening a menu. It copies the selection when there is one and the
-  whole image otherwise, and confirms in place for a couple of seconds.
-
-### Changed
-
-- The whole interface is redrawn with **Slate**, a compact widget kit written
-  for this application and kept free of anything specific to it, in
-  [`lib/slate/`](lib/slate/README.md). Menus, dropdowns, dialogs, buttons,
-  sliders and separators are now one coherent set rather than Material's
-  defaults: flat surfaces, hairline rules instead of elevation, tighter rows,
-  and a thin icon set drawn as paths so every glyph matches at any size.
-  Dropdowns in particular no longer sit in a heavy bordered box — they read as
-  their value until the pointer reaches them. **Help ▸ About Paint** is part of
-  that: it was the last window still drawn by Material, and it no longer opens a
-  separate licence browser.
-- The system title bar is replaced by one the application draws itself, so the
-  menus, the document name and the window buttons share a single row in the
-  app's own colours instead of a system bar stacked on a separate menu row.
-  That is one row of chrome less, and the window reads as one piece. Dragging
-  the bar moves the window, double-clicking it maximises, and the window edges
-  resize as usual.
-- The mouse wheel now zooms around the pointer instead of scrolling. Shift and
-  the wheel scrolls sideways, and dragging with the middle button still pans in
-  any direction.
-
-### Fixed
-
-- **Copying an image to the clipboard never worked.** The clipboard package
-  used for it does not implement image writing on Linux and silently reported
-  "not implemented", so Copy and Cut appeared to succeed and put nothing
-  anywhere. The application now writes the clipboard through GTK directly, and
-  reports a failure instead of claiming a copy that did not happen. Cut no
-  longer deletes the pixels unless the copy succeeded.
-- **Zooming in made the window unresponsive.** The transparency checkerboard
-  was drawn across the whole scaled image rather than the visible area, which
-  at 6400% on a 640x440 image meant about nine million squares per frame.
-- **Zooming in painted over the rest of the interface.** The canvas did not
-  clip to its own bounds, so at high zoom the image covered the menu bar, the
-  tool palette and the colour panel, and swallowed clicks meant for them.
-- Selection outlines no longer generate tens of thousands of dashes per frame
-  on a large selection at high zoom.
-
-## [0.1.0] - 2026-08-06
+## [0.1.0] - 2026-08-07
 
 First release: a complete, usable editor with parity against classic MS Paint.
 
@@ -78,10 +32,31 @@ First release: a complete, usable editor with parity against classic MS Paint.
   path accepted on the command line.
 - **Drag and drop** of image files onto the window.
 - **Clipboard** copy and paste of images, pasted as a floating selection.
-- **View** — zoom from 2% to 6400% with Ctrl+scroll around the pointer,
-  fit-to-window, actual size, middle-button panning and a status bar showing
-  cursor position, image size and zoom.
-- **Appearance** — a sober Material 3 theme in light, dark or follow-system.
+  Copying is written through GTK directly, because the clipboard package this
+  started on does not implement image writing on Linux and reports success
+  without putting anything anywhere. Cut does not delete the pixels unless the
+  copy actually succeeded.
+- A **Copy** button in the bottom-right corner, next to the zoom controls, so a
+  quick sketch can go straight onto the clipboard and into a chat or document
+  without opening a menu. It copies the selection when there is one and the
+  whole image otherwise, and confirms in place for a couple of seconds.
+- **View** — zoom from 2% to 6400%, with the mouse wheel zooming around the
+  pointer and Shift and the wheel scrolling sideways. Fit-to-window, actual
+  size, middle-button panning, and a status bar showing cursor position, image
+  size and zoom.
+- **A window drawn entirely by the application.** There is no system title bar:
+  the menus, the document name and the window buttons share a single row in the
+  app's own colours, which is one row of chrome less than a system bar stacked
+  on a separate menu row. Dragging the bar moves the window, double-clicking it
+  maximises, and the window edges resize as usual.
+- **Appearance** — a restrained light or dark theme that can follow the desktop,
+  drawn with **Slate**, a compact widget kit written for this application and
+  kept free of anything specific to it, in [`lib/slate/`](lib/slate/README.md).
+  Menus, dropdowns, dialogs, buttons, sliders and separators are one coherent
+  set rather than Material's defaults: flat surfaces, hairline rules instead of
+  elevation, tight rows, and a thin icon set drawn as paths so every glyph
+  matches at any size. Dropdowns sit in no bordered box — they read as their
+  value until the pointer reaches them.
 - **Internationalization** wired up through ARB files, English for now.
 - **Packaging** — Debian package with desktop entry, MIME associations,
   hicolor icons, AppStream metadata and a man page; an AppImage; and a signed
