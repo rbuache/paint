@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../ops/transform_ops.dart';
+import '../slate/slate.dart';
 
 /// Result of the New Image dialog.
 class NewImageSpec {
@@ -70,57 +71,48 @@ class _NewImageDialogState extends State<_NewImageDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(l10n.newImageTitle),
-      content: SizedBox(
-        width: 320,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: _IntField(label: l10n.fieldWidth, controller: _width),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _IntField(
-                    label: l10n.fieldHeight,
-                    controller: _height,
-                  ),
-                ),
-              ],
+    return SlateDialog(
+      title: l10n.newImageTitle,
+      width: 320,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _IntField(label: l10n.fieldWidth, controller: _width),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _IntField(label: l10n.fieldHeight, controller: _height),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          SlateLabeledField(
+            label: l10n.fieldBackground,
+            child: SlateSelect<int>(
+              value: _backgroundIndex,
+              values: const <int>[0, 1, 2],
+              labelOf: (index) => switch (index) {
+                1 => l10n.backgroundTransparent,
+                2 => l10n.backgroundSecondaryColor,
+                _ => l10n.backgroundWhite,
+              },
+              onChanged: (value) => setState(() => _backgroundIndex = value),
             ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<int>(
-              initialValue: _backgroundIndex,
-              decoration: InputDecoration(labelText: l10n.fieldBackground),
-              items: <DropdownMenuItem<int>>[
-                DropdownMenuItem<int>(
-                  value: 0,
-                  child: Text(l10n.backgroundWhite),
-                ),
-                DropdownMenuItem<int>(
-                  value: 1,
-                  child: Text(l10n.backgroundTransparent),
-                ),
-                DropdownMenuItem<int>(
-                  value: 2,
-                  child: Text(l10n.backgroundSecondaryColor),
-                ),
-              ],
-              onChanged: (value) =>
-                  setState(() => _backgroundIndex = value ?? 0),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       actions: <Widget>[
-        TextButton(
+        SlateButton(
+          label: l10n.buttonCancel,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.buttonCancel),
         ),
-        FilledButton(
+        SlateButton(
+          kind: SlateButtonKind.primary,
+          label: l10n.buttonOk,
           onPressed: () {
             final width = int.tryParse(_width.text) ?? 0;
             final height = int.tryParse(_height.text) ?? 0;
@@ -137,7 +129,6 @@ class _NewImageDialogState extends State<_NewImageDialog> {
               ),
             );
           },
-          child: Text(l10n.buttonOk),
         ),
       ],
     );
@@ -236,76 +227,64 @@ class _ResizeDialogState extends State<_ResizeDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(l10n.resizeImageTitle),
-      content: SizedBox(
-        width: 340,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            SegmentedButton<bool>(
-              segments: <ButtonSegment<bool>>[
-                ButtonSegment<bool>(
-                  value: false,
-                  label: Text(l10n.fieldUnitPixels),
+    return SlateDialog(
+      title: l10n.resizeImageTitle,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SlateSegmented<bool>(
+            value: _percent,
+            values: const <bool>[false, true],
+            labelOf: (percent) =>
+                percent ? l10n.fieldUnitPercent : l10n.fieldUnitPixels,
+            onChanged: _switchUnit,
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _IntField(
+                  label: l10n.fieldWidth,
+                  controller: _width,
+                  onChanged: (_) => _syncAspect(fromWidth: true),
                 ),
-                ButtonSegment<bool>(
-                  value: true,
-                  label: Text(l10n.fieldUnitPercent),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _IntField(
+                  label: l10n.fieldHeight,
+                  controller: _height,
+                  onChanged: (_) => _syncAspect(fromWidth: false),
                 ),
-              ],
-              selected: <bool>{_percent},
-              onSelectionChanged: (selection) => _switchUnit(selection.first),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: _IntField(
-                    label: l10n.fieldWidth,
-                    controller: _width,
-                    onChanged: (_) => _syncAspect(fromWidth: true),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _IntField(
-                    label: l10n.fieldHeight,
-                    controller: _height,
-                    onChanged: (_) => _syncAspect(fromWidth: false),
-                  ),
-                ),
-              ],
-            ),
-            CheckboxListTile(
-              value: _keepAspect,
-              dense: true,
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.fieldMaintainAspectRatio),
-              onChanged: (value) {
-                setState(() => _keepAspect = value ?? true);
-                _syncAspect(fromWidth: true);
-              },
-            ),
-            CheckboxListTile(
-              value: _smooth,
-              dense: true,
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.optionAntiAlias),
-              onChanged: (value) => setState(() => _smooth = value ?? true),
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          SlateCheckbox(
+            value: _keepAspect,
+            label: l10n.fieldMaintainAspectRatio,
+            onChanged: (value) {
+              setState(() => _keepAspect = value);
+              _syncAspect(fromWidth: true);
+            },
+          ),
+          const SizedBox(height: 8),
+          SlateCheckbox(
+            value: _smooth,
+            label: l10n.optionAntiAlias,
+            onChanged: (value) => setState(() => _smooth = value),
+          ),
+        ],
       ),
       actions: <Widget>[
-        TextButton(
+        SlateButton(
+          label: l10n.buttonCancel,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.buttonCancel),
         ),
-        FilledButton(
+        SlateButton(
+          kind: SlateButtonKind.primary,
+          label: l10n.buttonOk,
           onPressed: () {
             final rawWidth = int.tryParse(_width.text) ?? 0;
             final rawHeight = int.tryParse(_height.text) ?? 0;
@@ -324,7 +303,6 @@ class _ResizeDialogState extends State<_ResizeDialog> {
               ),
             );
           },
-          child: Text(l10n.buttonOk),
         ),
       ],
     );
@@ -390,49 +368,43 @@ class _CanvasSizeDialogState extends State<_CanvasSizeDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(l10n.canvasSizeTitle),
-      content: SizedBox(
-        width: 320,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: _IntField(label: l10n.fieldWidth, controller: _width),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _IntField(
-                    label: l10n.fieldHeight,
-                    controller: _height,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.fieldAnchor,
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: _AnchorGrid(
-                value: _anchor,
-                onChanged: (anchor) => setState(() => _anchor = anchor),
+    return SlateDialog(
+      title: l10n.canvasSizeTitle,
+      width: 320,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _IntField(label: l10n.fieldWidth, controller: _width),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _IntField(label: l10n.fieldHeight, controller: _height),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(l10n.fieldAnchor, style: context.slate.sectionStyle),
+          const SizedBox(height: 8),
+          Center(
+            child: _AnchorGrid(
+              value: _anchor,
+              onChanged: (anchor) => setState(() => _anchor = anchor),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       actions: <Widget>[
-        TextButton(
+        SlateButton(
+          label: l10n.buttonCancel,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.buttonCancel),
         ),
-        FilledButton(
+        SlateButton(
+          kind: SlateButtonKind.primary,
+          label: l10n.buttonOk,
           onPressed: () {
             final width = int.tryParse(_width.text) ?? 0;
             final height = int.tryParse(_height.text) ?? 0;
@@ -445,7 +417,6 @@ class _CanvasSizeDialogState extends State<_CanvasSizeDialog> {
               ),
             );
           },
-          child: Text(l10n.buttonOk),
         ),
       ],
     );
@@ -461,7 +432,7 @@ class _AnchorGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final palette = context.slateColors;
     return SizedBox(
       width: 96,
       child: GridView.count(
@@ -470,15 +441,16 @@ class _AnchorGrid extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           for (final anchor in CanvasAnchor.values)
-            InkWell(
-              onTap: () => onChanged(anchor),
-              child: Container(
-                margin: const EdgeInsets.all(1),
-                decoration: BoxDecoration(
-                  color: anchor == value
-                      ? scheme.primary
-                      : scheme.surfaceContainerHighest,
-                  border: Border.all(color: scheme.outlineVariant),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => onChanged(anchor),
+                child: Container(
+                  margin: const EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    color: anchor == value ? palette.accent : palette.field,
+                    border: Border.all(color: palette.fieldBorder),
+                  ),
                 ),
               ),
             ),
@@ -535,72 +507,74 @@ class _StretchSkewDialogState extends State<_StretchSkewDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(l10n.stretchSkewTitle),
-      content: SizedBox(
-        width: 340,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              '${l10n.sectionStretch}  (${l10n.fieldUnitPercent})',
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: _IntField(
-                    label: l10n.fieldHorizontal,
-                    controller: _stretchX,
-                    allowNegative: false,
-                  ),
+    final theme = context.slate;
+    return SlateDialog(
+      title: l10n.stretchSkewTitle,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            '${l10n.sectionStretch}  (${l10n.fieldUnitPercent})',
+            style: theme.sectionStyle,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _IntField(
+                  label: l10n.fieldHorizontal,
+                  controller: _stretchX,
+                  allowNegative: false,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _IntField(
-                    label: l10n.fieldVertical,
-                    controller: _stretchY,
-                    allowNegative: false,
-                  ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _IntField(
+                  label: l10n.fieldVertical,
+                  controller: _stretchY,
+                  allowNegative: false,
                 ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            Text(
-              '${l10n.sectionSkew}  (${l10n.unitDegrees})',
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: _IntField(
-                    label: l10n.fieldHorizontal,
-                    controller: _skewX,
-                    allowNegative: true,
-                  ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const SlateSeparator(),
+          const SizedBox(height: 16),
+          Text(
+            '${l10n.sectionSkew}  (${l10n.unitDegrees})',
+            style: theme.sectionStyle,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _IntField(
+                  label: l10n.fieldHorizontal,
+                  controller: _skewX,
+                  allowNegative: true,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _IntField(
-                    label: l10n.fieldVertical,
-                    controller: _skewY,
-                    allowNegative: true,
-                  ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _IntField(
+                  label: l10n.fieldVertical,
+                  controller: _skewY,
+                  allowNegative: true,
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
       actions: <Widget>[
-        TextButton(
+        SlateButton(
+          label: l10n.buttonCancel,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.buttonCancel),
         ),
-        FilledButton(
+        SlateButton(
+          kind: SlateButtonKind.primary,
+          label: l10n.buttonOk,
           onPressed: () {
             Navigator.of(context).pop(
               StretchSkewSpec(
@@ -619,7 +593,6 @@ class _StretchSkewDialogState extends State<_StretchSkewDialog> {
               ),
             );
           },
-          child: Text(l10n.buttonOk),
         ),
       ],
     );
@@ -636,21 +609,27 @@ Future<UnsavedChoice> showUnsavedChangesDialog(
   final l10n = AppLocalizations.of(context);
   final choice = await showDialog<UnsavedChoice>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l10n.unsavedTitle),
-      content: Text(l10n.unsavedMessage(documentName)),
+    builder: (context) => SlateDialog(
+      title: l10n.unsavedTitle,
+      width: 400,
+      content: Text(
+        l10n.unsavedMessage(documentName),
+        style: context.slate.textStyle,
+      ),
       actions: <Widget>[
-        TextButton(
+        SlateButton(
+          kind: SlateButtonKind.ghost,
+          label: l10n.buttonCancel,
           onPressed: () => Navigator.of(context).pop(UnsavedChoice.cancel),
-          child: Text(l10n.buttonCancel),
         ),
-        TextButton(
+        SlateButton(
+          label: l10n.buttonDiscard,
           onPressed: () => Navigator.of(context).pop(UnsavedChoice.discard),
-          child: Text(l10n.buttonDiscard),
         ),
-        FilledButton(
+        SlateButton(
+          kind: SlateButtonKind.primary,
+          label: l10n.buttonSave,
           onPressed: () => Navigator.of(context).pop(UnsavedChoice.save),
-          child: Text(l10n.buttonSave),
         ),
       ],
     ),
@@ -674,16 +653,17 @@ class _IntField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(labelText: label),
-      keyboardType: TextInputType.number,
-      inputFormatters: <TextInputFormatter>[
-        FilteringTextInputFormatter.allow(
-          allowNegative ? RegExp(r'^-?\d*') : RegExp(r'\d*'),
-        ),
-      ],
-      onChanged: onChanged,
+    return SlateLabeledField(
+      label: label,
+      child: SlateField(
+        controller: controller,
+        inputFormatters: <TextInputFormatter>[
+          FilteringTextInputFormatter.allow(
+            allowNegative ? RegExp(r'^-?\d*') : RegExp(r'\d*'),
+          ),
+        ],
+        onChanged: onChanged,
+      ),
     );
   }
 }

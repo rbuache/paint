@@ -8,8 +8,8 @@ import '../controller/canvas_controller.dart';
 import '../controller/document_controller.dart';
 import '../controller/selection_controller.dart';
 import '../controller/viewport_controller.dart';
-import '../core/theme/app_theme.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../slate/slate.dart';
 import 'app_actions.dart';
 
 /// Cursor position, image size and zoom, along the bottom edge.
@@ -22,14 +22,14 @@ class StatusBar extends StatelessWidget {
     final canvas = context.watch<CanvasController>();
     final viewport = context.watch<ViewportController>();
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final textStyle = Theme.of(context).textTheme.labelSmall;
+    final theme = context.slate;
+    final textStyle = theme.dimTextStyle;
 
     final cursor = canvas.cursorImagePosition;
 
     return Container(
-      height: AppTheme.barHeight,
-      color: scheme.surfaceContainerLow,
+      height: theme.metrics.barHeight,
+      color: theme.palette.panel,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: <Widget>[
@@ -51,21 +51,23 @@ class StatusBar extends StatelessWidget {
               style: textStyle,
             ),
           const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.remove, size: 16),
+          SlateIconButton(
+            icon: SlateIcons.minus,
             tooltip: l10n.actionZoomOut,
+            size: 24,
             onPressed: viewport.zoomOut,
           ),
-          SizedBox(
-            width: 120,
-            child: Slider(
-              value: _zoomToSlider(viewport.zoom),
-              onChanged: (value) => viewport.zoomTo(_sliderToZoom(value)),
-            ),
+          SlateSlider(
+            value: _zoomToSlider(viewport.zoom),
+            min: 0,
+            max: 1,
+            width: 110,
+            onChanged: (value) => viewport.zoomTo(_sliderToZoom(value)),
           ),
-          IconButton(
-            icon: const Icon(Icons.add, size: 16),
+          SlateIconButton(
+            icon: SlateIcons.plus,
             tooltip: l10n.actionZoomIn,
+            size: 24,
             onPressed: viewport.zoomIn,
           ),
           SizedBox(
@@ -77,23 +79,20 @@ class StatusBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 6),
-          IconButton(
-            icon: const Icon(Icons.fit_screen_outlined, size: 16),
+          SlateIconButton(
+            icon: SlateIcons.fitScreen,
             tooltip: l10n.actionZoomFit,
+            size: 24,
             onPressed: viewport.fitToWindow,
           ),
-          IconButton(
-            icon: const Icon(Icons.crop_original_outlined, size: 16),
+          SlateIconButton(
+            icon: SlateIcons.actualSize,
             tooltip: l10n.actionZoomNormal,
+            size: 24,
             onPressed: viewport.zoomToActualSize,
           ),
           const SizedBox(width: 8),
-          VerticalDivider(
-            width: 1,
-            indent: 7,
-            endIndent: 7,
-            color: scheme.outlineVariant,
-          ),
+          const SlateSeparator(vertical: true, inset: 7),
           const SizedBox(width: 8),
           const CopyToClipboardButton(),
         ],
@@ -168,31 +167,16 @@ class _CopyToClipboardButtonState extends State<CopyToClipboardButton> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final palette = context.slateColors;
     final hasSelection = context.watch<SelectionController>().hasSelection;
 
     return Tooltip(
       message: hasSelection ? l10n.copySelectionTooltip : l10n.copyImageTooltip,
-      child: TextButton.icon(
+      child: SlateButton(
         onPressed: _copy,
-        icon: Icon(
-          _copied ? Icons.check : Icons.content_copy_outlined,
-          size: 15,
-          color: _copied ? scheme.primary : null,
-        ),
-        label: Text(
-          _copied ? l10n.copiedToClipboard : l10n.actionCopyToClipboard,
-          style: TextStyle(
-            fontSize: 12,
-            color: _copied ? scheme.primary : null,
-          ),
-        ),
-        style: TextButton.styleFrom(
-          minimumSize: const Size(0, 26),
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-        ),
+        icon: _copied ? SlateIcons.check : SlateIcons.copy,
+        iconColor: _copied ? palette.accent : null,
+        label: _copied ? l10n.copiedToClipboard : l10n.actionCopyToClipboard,
       ),
     );
   }

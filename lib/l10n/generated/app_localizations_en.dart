@@ -520,4 +520,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String aboutVersion(String version) {
     return 'Version $version';
   }
+
+  @override
+  String get keyCtrl => 'Ctrl';
+
+  @override
+  String get keyShift => 'Shift';
+
+  @override
+  String get keyAlt => 'Alt';
+
+  @override
+  String get keyDelete => 'Del';
+
+  @override
+  String get unitPixels => 'px';
+
+  @override
+  String get unitPoints => 'pt';
 }

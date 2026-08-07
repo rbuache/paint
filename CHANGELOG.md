@@ -16,6 +16,14 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The whole interface is redrawn with **Slate**, a compact widget kit written
+  for this application and kept free of anything specific to it, in
+  [`lib/slate/`](lib/slate/README.md). Menus, dropdowns, dialogs, buttons,
+  sliders and separators are now one coherent set rather than Material's
+  defaults: flat surfaces, hairline rules instead of elevation, tighter rows,
+  and a thin icon set drawn as paths so every glyph matches at any size.
+  Dropdowns in particular no longer sit in a heavy bordered box — they read as
+  their value until the pointer reaches them.
 - The system title bar is replaced by one the application draws itself, so the
   menus, the document name and the window buttons share a single row in the
   app's own colours instead of a system bar stacked on a separate menu row.

@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../controller/document_controller.dart';
-import '../core/theme/app_theme.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../slate/slate.dart';
 import 'app_menu_bar.dart';
 
 /// The single bar across the top of the window.
@@ -63,7 +63,7 @@ class _WindowBarState extends State<WindowBar> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = context.slate;
     final l10n = AppLocalizations.of(context);
     final documents = context.watch<DocumentController>();
 
@@ -75,8 +75,8 @@ class _WindowBarState extends State<WindowBar> with WindowListener {
         : name;
 
     return Container(
-      height: AppTheme.windowBarHeight,
-      color: scheme.surfaceContainer,
+      height: theme.metrics.windowBarHeight,
+      color: theme.palette.chrome,
       child: Row(
         children: <Widget>[
           const SizedBox(width: 8),
@@ -94,28 +94,23 @@ class _WindowBarState extends State<WindowBar> with WindowListener {
                 child: Text(
                   title,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: scheme.onSurfaceVariant,
-                  ),
+                  style: theme.dimTextStyle,
                 ),
               ),
             ),
           ),
           _WindowButton(
-            icon: Icons.remove,
+            icon: SlateIcons.minimize,
             tooltip: l10n.windowMinimize,
             onPressed: windowManager.minimize,
           ),
           _WindowButton(
-            icon: _maximized
-                ? Icons.filter_none_outlined
-                : Icons.crop_square_outlined,
+            icon: _maximized ? SlateIcons.restore : SlateIcons.maximize,
             tooltip: _maximized ? l10n.windowRestore : l10n.windowMaximize,
             onPressed: _toggleMaximized,
           ),
           _WindowButton(
-            icon: Icons.close,
+            icon: SlateIcons.close,
             tooltip: l10n.windowClose,
             // Goes through close() rather than destroy() so the unsaved-changes
             // guard in AppShell.onWindowClose still runs.
@@ -128,7 +123,10 @@ class _WindowBarState extends State<WindowBar> with WindowListener {
   }
 }
 
-class _WindowButton extends StatelessWidget {
+/// A window button: wider than tall and square-cornered, the shape every
+/// desktop uses for this row. That is why it is not a [SlateIconButton], which
+/// is a square control sized for a toolbar.
+class _WindowButton extends StatefulWidget {
   const _WindowButton({
     required this.icon,
     required this.tooltip,
@@ -136,7 +134,7 @@ class _WindowButton extends StatelessWidget {
     this.danger = false,
   });
 
-  final IconData icon;
+  final SlateIconDraw icon;
   final String tooltip;
   final VoidCallback onPressed;
 
@@ -144,17 +142,40 @@ class _WindowButton extends StatelessWidget {
   final bool danger;
 
   @override
+  State<_WindowButton> createState() => _WindowButtonState();
+}
+
+class _WindowButtonState extends State<_WindowButton> {
+  bool _hover = false;
+
+  @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = context.slate;
     return Tooltip(
-      message: tooltip,
-      child: SizedBox(
-        width: 42,
-        height: AppTheme.windowBarHeight,
-        child: InkWell(
-          onTap: onPressed,
-          hoverColor: danger ? const Color(0xFFE04A3F) : scheme.surfaceBright,
-          child: Icon(icon, size: 15, color: scheme.onSurfaceVariant),
+      message: widget.tooltip,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          onTap: widget.onPressed,
+          child: Container(
+            width: 42,
+            height: theme.metrics.windowBarHeight,
+            alignment: Alignment.center,
+            color: !_hover
+                ? const Color(0x00000000)
+                : widget.danger
+                ? theme.palette.danger
+                : theme.palette.hover,
+            child: SlateIcon(
+              widget.icon,
+              size: 14,
+              color: widget.danger && _hover
+                  ? const Color(0xFFFFFFFF)
+                  : theme.palette.inkDim,
+            ),
+          ),
         ),
       ),
     );

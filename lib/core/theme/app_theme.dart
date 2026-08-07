@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// Colours the editor needs that are not part of [ColorScheme].
+import '../../slate/slate.dart';
+
+/// Colours the editor needs that no interface kit can supply.
 ///
-/// These describe the drawing surface rather than the chrome, so they are kept
-/// separate from the Material palette and resolved per brightness.
+/// These describe the drawing surface rather than the chrome — the backdrop
+/// behind the image, the transparency checkerboard, the marching ants. They are
+/// specific to an image editor, which is exactly why they live here and not in
+/// [SlatePalette].
 @immutable
 class CanvasColors extends ThemeExtension<CanvasColors> {
   const CanvasColors({
@@ -105,98 +109,33 @@ class CanvasColors extends ThemeExtension<CanvasColors> {
   }
 }
 
-/// Sober, low-chroma Material 3 themes for the editor chrome.
+/// The editor's chrome, which is the Slate kit plus the canvas colours.
 ///
-/// The chrome is deliberately neutral so the image being edited is the only
-/// saturated thing on screen. Elevation is replaced by hairline dividers and a
-/// single restrained accent marks selection and focus.
+/// Everything about how a control looks lives in [SlateThemeData]; this class
+/// only picks the palette for a brightness and attaches the drawing-surface
+/// colours the kit has no opinion about. Keeping that split means the kit can
+/// be lifted into its own package without unpicking the application from it.
 abstract final class AppTheme {
-  /// Neutral slate — just enough hue that selected and disabled states stay
-  /// distinguishable without the UI reading as "blue".
-  static const Color seed = Color(0xFF546070);
+  static const SlateThemeData lightSlate = SlateThemeData.light();
+  static const SlateThemeData darkSlate = SlateThemeData.dark();
 
-  /// Height of the toolbar and status bar rows. Kept tight so the canvas gets
-  /// the window.
-  static const double barHeight = 30;
-
-  /// Height of the merged title-and-menu bar. Slightly taller than the other
-  /// rows because it carries the window buttons, but still well short of a
-  /// system title bar plus a separate menu row.
-  static const double windowBarHeight = 36;
+  /// A tool-palette button. Larger than the controls in a bar, because these
+  /// are the targets the user hits most and they are the only icons in the
+  /// window carrying meaning on their own.
   static const double toolButtonSize = 30;
 
-  static ThemeData light() => _build(Brightness.light);
+  static SlateThemeData slateFor(Brightness brightness) =>
+      brightness == Brightness.dark ? darkSlate : lightSlate;
 
-  static ThemeData dark() => _build(Brightness.dark);
+  static ThemeData light() => _build(lightSlate, CanvasColors.light);
 
-  static ThemeData _build(Brightness brightness) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: seed,
-      brightness: brightness,
-      dynamicSchemeVariant: DynamicSchemeVariant.neutral,
-    );
-    final isLight = brightness == Brightness.light;
+  static ThemeData dark() => _build(darkSlate, CanvasColors.dark);
 
-    return ThemeData(
-      colorScheme: scheme,
-      useMaterial3: true,
-      visualDensity: VisualDensity.compact,
-      scaffoldBackgroundColor: scheme.surface,
-      dividerTheme: DividerThemeData(
-        space: 1,
-        thickness: 1,
-        color: scheme.outlineVariant,
-      ),
-      splashFactory: NoSplash.splashFactory,
-      tooltipTheme: TooltipThemeData(
-        waitDuration: const Duration(milliseconds: 600),
-        textStyle: TextStyle(fontSize: 12, color: scheme.onInverseSurface),
-        decoration: BoxDecoration(
-          color: scheme.inverseSurface,
-          borderRadius: BorderRadius.circular(4),
-        ),
-      ),
-      iconTheme: IconThemeData(size: 18, color: scheme.onSurfaceVariant),
-      iconButtonTheme: IconButtonThemeData(
-        style: IconButton.styleFrom(
-          minimumSize: const Size.square(toolButtonSize),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-        ),
-      ),
-      menuTheme: MenuThemeData(
-        style: MenuStyle(
-          elevation: const WidgetStatePropertyAll(3),
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-          ),
-        ),
-      ),
-      dialogTheme: DialogThemeData(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(4)),
-      ),
-      sliderTheme: const SliderThemeData(
-        trackHeight: 2,
-        overlayShape: RoundSliderOverlayShape(overlayRadius: 12),
-      ),
-      segmentedButtonTheme: SegmentedButtonThemeData(
-        style: SegmentedButton.styleFrom(
-          textStyle: const TextStyle(fontSize: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-        ),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-      ),
-      extensions: <ThemeExtension<dynamic>>[
-        isLight ? CanvasColors.light : CanvasColors.dark,
-      ],
+  /// Material still supplies Scaffold, Navigator, dialogs and text selection,
+  /// so its theme has to agree with the kit rather than sit beside it.
+  static ThemeData _build(SlateThemeData slate, CanvasColors canvas) {
+    return slate.toMaterialTheme().copyWith(
+      extensions: <ThemeExtension<dynamic>>[canvas],
     );
   }
 }

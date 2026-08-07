@@ -5,6 +5,7 @@ import '../core/settings/settings_controller.dart';
 import '../core/theme/app_theme.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../model/tool_settings.dart';
+import '../slate/slate.dart';
 import 'color_picker_dialog.dart';
 
 /// Primary/secondary swatches, the standard palette and the user's own colours.
@@ -49,18 +50,18 @@ class ColorPanel extends StatelessWidget {
     final settings = context.watch<ToolSettings>();
     final appSettings = context.watch<SettingsController>();
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final theme = context.slate;
     final customColors = appSettings.customColors;
 
     return Container(
-      color: scheme.surfaceContainerLow,
+      color: theme.palette.panel,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           _ActiveColors(settings: settings, l10n: l10n),
           const SizedBox(width: 12),
-          VerticalDivider(width: 1, color: scheme.outlineVariant),
+          const SlateSeparator(vertical: true),
           const SizedBox(width: 12),
           _Swatches(
             colors: palette,
@@ -70,7 +71,7 @@ class ColorPanel extends StatelessWidget {
           ),
           if (customColors.isNotEmpty) ...<Widget>[
             const SizedBox(width: 12),
-            VerticalDivider(width: 1, color: scheme.outlineVariant),
+            const SlateSeparator(vertical: true),
             const SizedBox(width: 12),
             Tooltip(
               message: l10n.colorRecent,
@@ -84,9 +85,9 @@ class ColorPanel extends StatelessWidget {
             ),
           ],
           const SizedBox(width: 12),
-          OutlinedButton.icon(
-            icon: const Icon(Icons.palette_outlined, size: 15),
-            label: Text(l10n.colorEdit, style: const TextStyle(fontSize: 12)),
+          SlateButton(
+            icon: SlateIcons.palette,
+            label: l10n.colorEdit,
             onPressed: () => _editColor(context, settings, appSettings),
           ),
         ],
@@ -155,12 +156,11 @@ class _ActiveColors extends StatelessWidget {
           Positioned(
             right: 0,
             top: 0,
-            child: Tooltip(
-              message: l10n.colorSwapHint,
-              child: InkWell(
-                onTap: settings.swapColors,
-                child: const Icon(Icons.swap_horiz, size: 14),
-              ),
+            child: SlateIconButton(
+              icon: SlateIcons.swap,
+              tooltip: l10n.colorSwapHint,
+              size: 18,
+              onPressed: settings.swapColors,
             ),
           ),
         ],
@@ -225,9 +225,7 @@ class _SwatchCell extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           color: color,
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
+          border: Border.all(color: context.slateColors.border),
         ),
       ),
     );

@@ -213,3 +213,64 @@ the reactive surface is one line.
 
 **Revisit if.** Multi-document tabs arrive and document lifetime becomes
 non-trivial.
+
+---
+
+## 15. A widget kit of our own, rather than Material's defaults
+
+**Choice.** Every control the user touches is drawn by **Slate**, a kit in
+`lib/slate/` written for this application but holding nothing specific to it.
+Material remains underneath for Scaffold, Navigator, overlays and text
+selection, themed to agree with the kit.
+
+**Why.** Material 3 is a good design system for the phone it was drawn for. On a
+desktop editor it reads wrong in a way that is hard to theme away rather than
+rewrite: filled outlined dropdowns are heavier than the labels beside them,
+default row heights assume a thumb rather than a pointer, elevation and tint
+stand in for the hairline rules a dense interface actually wants, and the icon
+set is a different weight from anything else on a Linux desktop. Restyling
+`DropdownButtonFormField` and `MenuItemButton` far enough gets you widgets that
+fight their own defaults on every Flutter upgrade.
+
+The kit is also the honest answer to what "sober" means here. It is roughly two
+dozen small widgets and one palette; that is less code than the theme overrides
+it replaced, and it puts every visual decision in one readable place.
+
+**Why it is walled off.** No controller, model, localisation or image-editor
+concept may be imported into `lib/slate/`, and no user-facing string may be
+written there — labels and tooltips are parameters. The immediate benefit is
+that the kit can become a package without unpicking the editor from it. The
+larger one is that the wall keeps the kit general: a widget that cannot name a
+Paint concept cannot quietly grow a dependency on one, which is exactly the drift
+that turns a design system back into application code.
+
+**The trade.** Accessibility and keyboard navigation that Material's buttons
+give for free are ours to supply. `SlateIconButton` requires a tooltip rather
+than accepting one, and the rows carry `Semantics`; full keyboard traversal
+inside a menu is still on the list.
+
+**Revisit if.** Flutter grows a desktop-density widget set that is genuinely
+adjustable, or the kit stops paying for itself in code saved.
+
+---
+
+## 16. Dropdowns show their affordance on hover, not at rest
+
+**Choice.** `SlateSelect` draws no border and no fill until the pointer is over
+it — just the current value and a chevron.
+
+**Why.** The first attempts at making the tool options row feel lighter went
+after the wrong variable twice: first the popover list was tightened, then the
+control height was reduced. Neither helped, because the problem was never size.
+A bordered, filled box is a *heavy shape* sitting next to a plain text label, and
+in a row of five such pairs that weight is what makes the interface look inflated
+even when the type is exactly right. Removing the shape fixed in one change what
+two rounds of shrinking had not.
+
+The affordance is not lost, only deferred: it appears under the pointer, which
+is the moment it is needed, and the chevron marks the control as interactive at
+all times.
+
+**The trade.** On a touch screen, or for a user scanning without moving the
+pointer, a rest-state box is more discoverable. This is a desktop application
+driven by a pointer, so the trade is worth taking; it would not be on a tablet.

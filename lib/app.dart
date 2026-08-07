@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'core/settings/settings_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'l10n/generated/app_localizations.dart';
+import 'slate/slate.dart';
 import 'ui/app_shell.dart';
 
 /// Root widget: theme, localisation and the window shell.
@@ -22,6 +23,13 @@ class PaintApp extends StatelessWidget {
       themeMode: settings.themeMode,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      // Installed here rather than around the MaterialApp because the
+      // brightness that decides the palette is only known once themeMode and
+      // the platform have been resolved, which happens inside it.
+      builder: (context, child) => SlateTheme(
+        data: AppTheme.slateFor(Theme.of(context).brightness),
+        child: child!,
+      ),
       home: const AppShell(),
     );
   }

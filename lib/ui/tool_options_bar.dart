@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../core/theme/app_theme.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../model/tool_settings.dart';
+import '../slate/slate.dart';
 import '../tools/tool_registry.dart';
 import 'tool_labels.dart';
 
@@ -18,21 +18,23 @@ class ToolOptionsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<ToolSettings>();
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final theme = context.slate;
     final tool = ToolRegistry.byId(settings.activeTool);
     final options = tool?.options ?? const <ToolOption>{};
 
     return Container(
-      height: AppTheme.barHeight,
-      color: scheme.surfaceContainerLow,
+      height: theme.metrics.barHeight,
+      color: theme.palette.panel,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         children: <Widget>[
           Text(
             toolLabel(l10n, settings.activeTool),
-            style: Theme.of(context).textTheme.labelMedium,
+            style: theme.textStyle.copyWith(
+              fontSize: theme.metrics.smallFontSize,
+            ),
           ),
-          if (options.isNotEmpty) const _Separator(),
+          if (options.isNotEmpty) const _Gap(),
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -44,7 +46,7 @@ class ToolOptionsBar extends StatelessWidget {
                       value: settings.strokeWidth,
                       min: 1,
                       max: 64,
-                      suffix: 'px',
+                      unit: l10n.unitPixels,
                       onChanged: (value) => settings.strokeWidth = value,
                     ),
                   if (options.contains(ToolOption.tip))
@@ -78,7 +80,7 @@ class ToolOptionsBar extends StatelessWidget {
                       value: settings.cornerRadius,
                       min: 0,
                       max: 64,
-                      suffix: 'px',
+                      unit: l10n.unitPixels,
                       onChanged: (value) => settings.cornerRadius = value,
                     ),
                   if (options.contains(ToolOption.tolerance))
@@ -150,73 +152,63 @@ class _TextOptions extends StatelessWidget {
     return Row(
       children: <Widget>[
         _OptionLabel(l10n.optionFontFamily),
-        SizedBox(
-          width: 150,
-          child: DropdownButtonFormField<String>(
-            initialValue: families.contains(settings.fontFamily)
-                ? settings.fontFamily
-                : families.first,
-            isDense: true,
-            items: <DropdownMenuItem<String>>[
-              for (final family in families)
-                DropdownMenuItem<String>(
-                  value: family,
-                  child: Text(family, style: const TextStyle(fontSize: 12)),
-                ),
-            ],
-            onChanged: (value) {
-              if (value != null) settings.fontFamily = value;
-            },
-          ),
+        SlateSelect<String>(
+          value: families.contains(settings.fontFamily)
+              ? settings.fontFamily
+              : families.first,
+          values: families,
+          labelOf: (family) => family,
+          minWidth: 92,
+          onChanged: (value) => settings.fontFamily = value,
         ),
-        const _Separator(),
+        const _Gap(),
         _SliderOption(
           label: l10n.optionFontSize,
           value: settings.fontSize,
           min: 6,
           max: 144,
-          suffix: 'pt',
+          unit: l10n.unitPoints,
           onChanged: (value) => settings.fontSize = value,
         ),
-        const _Separator(),
+        const _Gap(),
         _ToggleIcon(
-          icon: Icons.format_bold,
+          icon: SlateIcons.bold,
           tooltip: l10n.optionBold,
           value: settings.bold,
           onChanged: (value) => settings.bold = value,
         ),
         _ToggleIcon(
-          icon: Icons.format_italic,
+          icon: SlateIcons.italic,
           tooltip: l10n.optionItalic,
           value: settings.italic,
           onChanged: (value) => settings.italic = value,
         ),
         _ToggleIcon(
-          icon: Icons.format_underlined,
+          icon: SlateIcons.underline,
           tooltip: l10n.optionUnderline,
           value: settings.underline,
           onChanged: (value) => settings.underline = value,
         ),
-        const _Separator(),
+        const _Gap(),
         _ToggleIcon(
-          icon: Icons.format_align_left,
+          icon: SlateIcons.alignLeft,
           tooltip: l10n.optionAlignLeft,
           value: settings.textAlign == TextAlign.left,
           onChanged: (_) => settings.textAlign = TextAlign.left,
         ),
         _ToggleIcon(
-          icon: Icons.format_align_center,
+          icon: SlateIcons.alignCenter,
           tooltip: l10n.optionAlignCenter,
           value: settings.textAlign == TextAlign.center,
           onChanged: (_) => settings.textAlign = TextAlign.center,
         ),
         _ToggleIcon(
-          icon: Icons.format_align_right,
+          icon: SlateIcons.alignRight,
           tooltip: l10n.optionAlignRight,
           value: settings.textAlign == TextAlign.right,
           onChanged: (_) => settings.textAlign = TextAlign.right,
         ),
-        const _Separator(),
+        const _Gap(),
         _CheckOption(
           label: l10n.optionOpaqueBackground,
           value: settings.textOpaqueBackground,
@@ -234,35 +226,34 @@ class _SliderOption extends StatelessWidget {
     required this.min,
     required this.max,
     required this.onChanged,
-    this.suffix,
+    this.unit,
   });
 
   final String label;
   final double value;
   final double min;
   final double max;
-  final String? suffix;
+  final String? unit;
   final ValueChanged<double> onChanged;
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.slate;
     return Row(
       children: <Widget>[
         _OptionLabel(label),
-        SizedBox(
-          width: 110,
-          child: Slider(
-            value: value.clamp(min, max),
-            min: min,
-            max: max,
-            onChanged: onChanged,
-          ),
+        SlateSlider(
+          value: value,
+          min: min,
+          max: max,
+          width: 96,
+          onChanged: onChanged,
         ),
         SizedBox(
-          width: 42,
+          width: 36,
           child: Text(
-            suffix == null ? '${value.round()}' : '${value.round()} $suffix',
-            style: Theme.of(context).textTheme.labelSmall,
+            unit == null ? '${value.round()}' : '${value.round()} ${unit!}',
+            style: theme.dimTextStyle,
           ),
         ),
       ],
@@ -290,27 +281,16 @@ class _EnumOption<T> extends StatelessWidget {
     return Row(
       children: <Widget>[
         _OptionLabel(label),
-        SizedBox(
-          width: 150,
-          child: DropdownButtonFormField<T>(
-            initialValue: value,
-            isDense: true,
-            items: <DropdownMenuItem<T>>[
-              for (final option in values)
-                DropdownMenuItem<T>(
-                  value: option,
-                  child: Text(
-                    labelFor(option),
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ),
-            ],
-            onChanged: (selected) {
-              if (selected != null) onChanged(selected);
-            },
-          ),
+        SlateSelect<T>(
+          value: value,
+          values: values,
+          labelOf: labelFor,
+          // Pinned so switching between "Round" and "Backslash" does not shove
+          // the rest of the row sideways.
+          minWidth: 78,
+          onChanged: onChanged,
         ),
-        const _Separator(),
+        const _Gap(),
       ],
     );
   }
@@ -331,17 +311,8 @@ class _CheckOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        Checkbox(
-          value: value,
-          visualDensity: VisualDensity.compact,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          onChanged: (checked) => onChanged(checked ?? false),
-        ),
-        GestureDetector(
-          onTap: () => onChanged(!value),
-          child: Text(label, style: Theme.of(context).textTheme.labelSmall),
-        ),
-        const _Separator(),
+        SlateCheckbox(value: value, label: label, onChanged: onChanged),
+        const _Gap(),
       ],
     );
   }
@@ -355,29 +326,19 @@ class _ToggleIcon extends StatelessWidget {
     required this.onChanged,
   });
 
-  final IconData icon;
+  final SlateIconDraw icon;
   final String tooltip;
   final bool value;
   final ValueChanged<bool> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: () => onChanged(!value),
-        borderRadius: BorderRadius.circular(4),
-        child: Container(
-          width: 26,
-          height: 24,
-          decoration: BoxDecoration(
-            color: value ? scheme.secondaryContainer : Colors.transparent,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Icon(icon, size: 16),
-        ),
-      ),
+    return SlateIconButton(
+      icon: icon,
+      tooltip: tooltip,
+      selected: value,
+      size: 24,
+      onPressed: () => onChanged(!value),
     );
   }
 }
@@ -391,24 +352,20 @@ class _OptionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: 6),
-      child: Text(text, style: Theme.of(context).textTheme.labelSmall),
+      child: Text(text, style: context.slate.dimTextStyle),
     );
   }
 }
 
-class _Separator extends StatelessWidget {
-  const _Separator();
+/// A hairline with breathing room, between groups of controls in the row.
+class _Gap extends StatelessWidget {
+  const _Gap();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: VerticalDivider(
-        width: 1,
-        indent: 7,
-        endIndent: 7,
-        color: Theme.of(context).colorScheme.outlineVariant,
-      ),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: SlateSeparator(vertical: true, inset: 7),
     );
   }
 }

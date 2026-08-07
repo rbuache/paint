@@ -9,6 +9,7 @@ import '../controller/document_controller.dart';
 import '../io/image_codecs.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../model/tool_settings.dart';
+import '../slate/slate.dart';
 import '../tools/tool_registry.dart';
 import 'app_actions.dart';
 import 'canvas_view.dart';
@@ -76,9 +77,9 @@ class _AppShellState extends State<AppShell> with WindowListener {
             Column(
               children: <Widget>[
                 const WindowBar(),
-                const Divider(height: 1),
+                const SlateSeparator(),
                 const ToolOptionsBar(),
-                const Divider(height: 1),
+                const SlateSeparator(),
                 Expanded(
                   child: Row(
                     // Stretch, or the palette sizes itself to its icons and floats
@@ -86,7 +87,7 @@ class _AppShellState extends State<AppShell> with WindowListener {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       const ToolPalette(),
-                      const VerticalDivider(width: 1),
+                      const SlateSeparator(vertical: true),
                       Expanded(
                         child: _DropTarget(
                           dragging: _dragging,
@@ -97,9 +98,9 @@ class _AppShellState extends State<AppShell> with WindowListener {
                     ],
                   ),
                 ),
-                const Divider(height: 1),
+                const SlateSeparator(),
                 const ColorPanel(),
-                const Divider(height: 1),
+                const SlateSeparator(),
                 const StatusBar(),
               ],
             ),
@@ -123,7 +124,7 @@ class _DropTarget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final theme = context.slate;
 
     return DropTarget(
       onDragEntered: (_) => onDraggingChanged(true),
@@ -146,21 +147,15 @@ class _DropTarget extends StatelessWidget {
           if (dragging)
             IgnorePointer(
               child: Container(
-                color: scheme.primary.withValues(alpha: 0.12),
+                color: theme.palette.accent.withValues(alpha: 0.12),
                 alignment: Alignment.center,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,
                     vertical: 12,
                   ),
-                  decoration: BoxDecoration(
-                    color: scheme.inverseSurface,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    l10n.dropHint,
-                    style: TextStyle(color: scheme.onInverseSurface),
-                  ),
+                  decoration: theme.popoverDecoration,
+                  child: Text(l10n.dropHint, style: theme.textStyle),
                 ),
               ),
             ),

@@ -1053,6 +1053,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version {version}'**
   String aboutVersion(String version);
+
+  /// Control modifier key, shown in menu shortcut labels
+  ///
+  /// In en, this message translates to:
+  /// **'Ctrl'**
+  String get keyCtrl;
+
+  /// Shift modifier key, shown in menu shortcut labels
+  ///
+  /// In en, this message translates to:
+  /// **'Shift'**
+  String get keyShift;
+
+  /// Alt modifier key, shown in menu shortcut labels
+  ///
+  /// In en, this message translates to:
+  /// **'Alt'**
+  String get keyAlt;
+
+  /// Delete key, shown in menu shortcut labels
+  ///
+  /// In en, this message translates to:
+  /// **'Del'**
+  String get keyDelete;
+
+  /// Abbreviation for pixels, shown after a numeric value
+  ///
+  /// In en, this message translates to:
+  /// **'px'**
+  String get unitPixels;
+
+  /// Abbreviation for typographic points, shown after a font size
+  ///
+  /// In en, this message translates to:
+  /// **'pt'**
+  String get unitPoints;
 }
 
 class _AppLocalizationsDelegate

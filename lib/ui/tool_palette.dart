@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../model/tool_settings.dart';
+import '../slate/slate.dart';
 import '../tools/tool_registry.dart';
 import 'tool_labels.dart';
 
@@ -18,11 +19,10 @@ class ToolPalette extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<ToolSettings>();
-    final scheme = Theme.of(context).colorScheme;
 
     return Container(
       width: AppTheme.toolButtonSize * columns + 12,
-      color: scheme.surfaceContainerLow,
+      color: context.slateColors.panel,
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 5),
       child: SingleChildScrollView(
         child: Wrap(
@@ -42,7 +42,7 @@ class ToolPalette extends StatelessWidget {
   }
 }
 
-class _ToolButton extends StatelessWidget {
+class _ToolButton extends StatefulWidget {
   const _ToolButton({
     required this.toolId,
     required this.selected,
@@ -54,30 +54,47 @@ class _ToolButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
+  State<_ToolButton> createState() => _ToolButtonState();
+}
+
+class _ToolButtonState extends State<_ToolButton> {
+  bool _hover = false;
+
+  @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final label = toolLabel(AppLocalizations.of(context), toolId);
+    final theme = context.slate;
+    final label = toolLabel(AppLocalizations.of(context), widget.toolId);
 
     return Tooltip(
-      message: '$label  (${ToolRegistry.shortcutFor(toolId)})',
-      child: SizedBox.square(
-        dimension: AppTheme.toolButtonSize,
-        child: Material(
-          color: selected ? scheme.secondaryContainer : Colors.transparent,
-          borderRadius: BorderRadius.circular(4),
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(4),
-            child: Semantics(
-              label: label,
-              selected: selected,
-              button: true,
+      message: '$label  (${ToolRegistry.shortcutFor(widget.toolId)})',
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          onTap: widget.onPressed,
+          child: Semantics(
+            label: label,
+            selected: widget.selected,
+            button: true,
+            child: Container(
+              width: AppTheme.toolButtonSize,
+              height: AppTheme.toolButtonSize,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: widget.selected
+                    ? theme.palette.selected
+                    : _hover
+                    ? theme.palette.hover
+                    : const Color(0x00000000),
+                borderRadius: BorderRadius.circular(theme.metrics.radius),
+              ),
               child: Icon(
-                ToolRegistry.iconFor(toolId),
+                ToolRegistry.iconFor(widget.toolId),
                 size: 17,
-                color: selected
-                    ? scheme.onSecondaryContainer
-                    : scheme.onSurfaceVariant,
+                color: widget.selected
+                    ? theme.palette.accent
+                    : theme.palette.inkDim,
               ),
             ),
           ),

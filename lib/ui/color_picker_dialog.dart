@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../core/theme/app_theme.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../slate/slate.dart';
 
 /// Opens the colour editor and returns the chosen colour, or null on cancel.
 Future<Color?> showColorPickerDialog(BuildContext context, Color initial) {
@@ -88,80 +89,81 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
     final l10n = AppLocalizations.of(context);
     final color = _color;
 
-    return AlertDialog(
-      title: Text(l10n.colorDialogTitle),
-      content: SizedBox(
-        width: 420,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              SizedBox(
-                height: 170,
-                child: _SaturationValueBox(
-                  hsv: _hsv,
-                  onChanged: (saturation, value) =>
-                      _setHsv(_hsv.withSaturation(saturation).withValue(value)),
-                ),
+    return SlateDialog(
+      title: l10n.colorDialogTitle,
+      width: 420,
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            SizedBox(
+              height: 170,
+              child: _SaturationValueBox(
+                hsv: _hsv,
+                onChanged: (saturation, value) =>
+                    _setHsv(_hsv.withSaturation(saturation).withValue(value)),
               ),
-              const SizedBox(height: 14),
-              _ChannelSlider(
-                label: l10n.colorHue,
-                value: _hsv.hue,
-                max: 360,
-                gradient: const <Color>[
-                  Color(0xFFFF0000),
-                  Color(0xFFFFFF00),
-                  Color(0xFF00FF00),
-                  Color(0xFF00FFFF),
-                  Color(0xFF0000FF),
-                  Color(0xFFFF00FF),
-                  Color(0xFFFF0000),
-                ],
-                onChanged: (value) => _setHsv(_hsv.withHue(value)),
-              ),
-              _ChannelSlider(
-                label: l10n.colorAlpha,
-                value: _hsv.alpha * 255,
-                max: 255,
-                gradient: <Color>[color.withAlpha(0), color.withAlpha(255)],
-                onChanged: (value) => _setHsv(_hsv.withAlpha(value / 255)),
-              ),
-              const Divider(height: 20),
-              _ChannelSlider(
-                label: l10n.colorRed,
-                value: (color.r * 255).roundToDouble(),
-                max: 255,
-                gradient: <Color>[color.withRed(0), color.withRed(255)],
-                onChanged: (value) => _setColor(color.withRed(value.round())),
-              ),
-              _ChannelSlider(
-                label: l10n.colorGreen,
-                value: (color.g * 255).roundToDouble(),
-                max: 255,
-                gradient: <Color>[color.withGreen(0), color.withGreen(255)],
-                onChanged: (value) => _setColor(color.withGreen(value.round())),
-              ),
-              _ChannelSlider(
-                label: l10n.colorBlue,
-                value: (color.b * 255).roundToDouble(),
-                max: 255,
-                gradient: <Color>[color.withBlue(0), color.withBlue(255)],
-                onChanged: (value) => _setColor(color.withBlue(value.round())),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: <Widget>[
-                  _Preview(color: color),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
+            ),
+            const SizedBox(height: 14),
+            _ChannelSlider(
+              label: l10n.colorHue,
+              value: _hsv.hue,
+              max: 360,
+              gradient: const <Color>[
+                Color(0xFFFF0000),
+                Color(0xFFFFFF00),
+                Color(0xFF00FF00),
+                Color(0xFF00FFFF),
+                Color(0xFF0000FF),
+                Color(0xFFFF00FF),
+                Color(0xFFFF0000),
+              ],
+              onChanged: (value) => _setHsv(_hsv.withHue(value)),
+            ),
+            _ChannelSlider(
+              label: l10n.colorAlpha,
+              value: _hsv.alpha * 255,
+              max: 255,
+              gradient: <Color>[color.withAlpha(0), color.withAlpha(255)],
+              onChanged: (value) => _setHsv(_hsv.withAlpha(value / 255)),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: SlateSeparator(),
+            ),
+            _ChannelSlider(
+              label: l10n.colorRed,
+              value: (color.r * 255).roundToDouble(),
+              max: 255,
+              gradient: <Color>[color.withRed(0), color.withRed(255)],
+              onChanged: (value) => _setColor(color.withRed(value.round())),
+            ),
+            _ChannelSlider(
+              label: l10n.colorGreen,
+              value: (color.g * 255).roundToDouble(),
+              max: 255,
+              gradient: <Color>[color.withGreen(0), color.withGreen(255)],
+              onChanged: (value) => _setColor(color.withGreen(value.round())),
+            ),
+            _ChannelSlider(
+              label: l10n.colorBlue,
+              value: (color.b * 255).roundToDouble(),
+              max: 255,
+              gradient: <Color>[color.withBlue(0), color.withBlue(255)],
+              onChanged: (value) => _setColor(color.withBlue(value.round())),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                _Preview(color: color),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: SlateLabeledField(
+                    label: _hexError ?? l10n.colorHex,
+                    child: SlateField(
                       controller: _hexController,
-                      decoration: InputDecoration(
-                        labelText: l10n.colorHex,
-                        errorText: _hexError,
-                      ),
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.allow(
                           RegExp('[#0-9a-fA-F]'),
@@ -176,20 +178,21 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
                       },
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
       actions: <Widget>[
-        TextButton(
+        SlateButton(
+          label: l10n.buttonCancel,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.buttonCancel),
         ),
-        FilledButton(
+        SlateButton(
+          kind: SlateButtonKind.primary,
+          label: l10n.buttonOk,
           onPressed: () => Navigator.of(context).pop(_color),
-          child: Text(l10n.buttonOk),
         ),
       ],
     );
@@ -284,54 +287,60 @@ class _ChannelSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        SizedBox(
-          width: 76,
-          child: Text(label, style: Theme.of(context).textTheme.labelSmall),
-        ),
-        Expanded(
-          child: SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 10,
-              // The gradient is the track, so the thumb needs to sit on top of
-              // it without an opaque active/inactive split.
-              activeTrackColor: Colors.transparent,
-              inactiveTrackColor: Colors.transparent,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                Container(
-                  height: 10,
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    gradient: LinearGradient(colors: gradient),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant,
+    final theme = context.slate;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Row(
+        children: <Widget>[
+          SizedBox(width: 68, child: Text(label, style: theme.dimTextStyle)),
+          Expanded(
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 10,
+                // The gradient is the track, so the thumb needs to sit on top
+                // of it without an opaque active/inactive split.
+                activeTrackColor: const Color(0x00000000),
+                inactiveTrackColor: const Color(0x00000000),
+                overlayColor: theme.palette.accent.withValues(alpha: 0.14),
+                thumbColor: const Color(0xFFFFFFFF),
+                thumbShape: const RoundSliderThumbShape(
+                  enabledThumbRadius: 6,
+                  elevation: 1,
+                  pressedElevation: 1,
+                ),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  Container(
+                    height: 10,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3),
+                      gradient: LinearGradient(colors: gradient),
+                      border: Border.all(color: theme.palette.fieldBorder),
                     ),
                   ),
-                ),
-                Slider(
-                  value: value.clamp(0, max),
-                  max: max,
-                  onChanged: onChanged,
-                ),
-              ],
+                  Slider(
+                    value: value.clamp(0, max),
+                    max: max,
+                    onChanged: onChanged,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        SizedBox(
-          width: 36,
-          child: Text(
-            '${value.round()}',
-            textAlign: TextAlign.right,
-            style: Theme.of(context).textTheme.labelSmall,
+          SizedBox(
+            width: 34,
+            child: Text(
+              '${value.round()}',
+              textAlign: TextAlign.right,
+              style: theme.dimTextStyle,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
