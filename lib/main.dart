@@ -6,11 +6,13 @@ import 'app.dart';
 import 'controller/canvas_controller.dart';
 import 'controller/document_controller.dart';
 import 'controller/selection_controller.dart';
+import 'controller/update_controller.dart';
 import 'controller/viewport_controller.dart';
 import 'core/settings/settings_controller.dart';
 import 'io/file_service.dart';
 import 'io/image_codecs.dart';
 import 'model/tool_settings.dart';
+import 'ui/app_menu_bar.dart' show appVersion;
 
 /// Entry point. [args] carries a file path when the app is launched from a
 /// file manager or with `paint image.png`.
@@ -77,6 +79,10 @@ Future<void> main(List<String> args) async {
             viewport: viewport,
             selections: selections,
           ),
+        ),
+        ChangeNotifierProvider<UpdateController>(
+          create: (_) =>
+              UpdateController(settings: settings, currentVersion: appVersion),
         ),
       ],
       child: const PaintApp(),

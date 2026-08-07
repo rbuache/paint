@@ -103,6 +103,28 @@ abstract final class SlateIcons {
     canvas.drawLine(const Offset(3.5, 8), const Offset(12.5, 8), stroke);
   }
 
+  /// An arrow into a tray: something newer is available.
+  static void download(Canvas canvas, Paint stroke) {
+    canvas
+      ..drawPath(
+        Path()
+          ..moveTo(8, 2.5)
+          ..lineTo(8, 10)
+          ..moveTo(4.5, 6.5)
+          ..lineTo(8, 10)
+          ..lineTo(11.5, 6.5),
+        stroke,
+      )
+      ..drawPath(
+        Path()
+          ..moveTo(3, 11.5)
+          ..lineTo(3, 13.5)
+          ..lineTo(13, 13.5)
+          ..lineTo(13, 11.5),
+        stroke,
+      );
+  }
+
   static void copy(Canvas canvas, Paint stroke) {
     canvas
       ..drawRect(const Rect.fromLTWH(5.5, 5.5, 7, 7), stroke)

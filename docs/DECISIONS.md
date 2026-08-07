@@ -274,3 +274,39 @@ all times.
 **The trade.** On a touch screen, or for a user scanning without moving the
 pointer, a rest-state box is more discoverable. This is a desktop application
 driven by a pointer, so the trade is worth taking; it would not be on a tablet.
+
+---
+
+## 17. Update checking, not self-updating, and off by default
+
+**Choice.** An opt-in check that reads the APT repository's package index once a
+day and, when something newer exists, offers the `apt` command in the status
+bar. It never downloads and never installs.
+
+**Why not self-update.** The package is installed by dpkg into `/usr/lib/paint/`,
+owned by root. Replacing those files needs privilege the application does not
+have, and a program that acquired it would leave dpkg's database describing
+files that are no longer on disk — the next `apt` operation would then either
+overwrite the update or refuse to proceed. Asking for a password inside a
+drawing program to work around that is the wrong shape for the problem. `apt` is
+the mechanism, and the whole signed repository exists so that it works; the most
+this should do is say when running it would achieve something.
+
+**Why the APT index rather than the GitHub API.** It is the same host the user
+already trusts to deliver the packages, so the check introduces no new party. It
+is unauthenticated and unmetered, where the GitHub API is rate-limited per IP
+and would fail unpredictably from a shared address. And it reports what can
+actually be installed, which is not always the newest tag — a tag whose release
+job failed halfway would otherwise be advertised as available.
+
+**Why off by default.** "No network" was a plain claim the README, the About box
+and the download page all made. Something that phones home on launch makes it
+false for everyone, in exchange for a convenience most users of a Paint clone
+did not ask for. Off by default keeps the claim true for anyone who never opens
+the Help menu, and the wording now says exactly what turning it on does. The
+explicit **Check for Updates Now** command works regardless of the setting,
+because pressing it is consent for that one check.
+
+**The trade.** Someone who never turns it on never learns about a security fix
+from the application itself. That is what `unattended-upgrades` is for, and the
+APT repository supports it; the README points there.

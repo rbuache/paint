@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/document_controller.dart';
+import '../controller/update_controller.dart';
 import '../core/settings/settings_controller.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../slate/slate.dart';
@@ -273,7 +274,25 @@ class AppMenuBar extends StatelessWidget {
 
   static List<Widget> _helpMenu(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final settings = context.watch<SettingsController>();
+    final updates = context.watch<UpdateController>();
+
     return <Widget>[
+      SlateMenuItem(
+        label: l10n.actionCheckUpdatesNow,
+        onPressed: updates.isChecking
+            ? null
+            : () => AppActions(context).checkForUpdates(),
+      ),
+      SlateMenuItem(
+        label: l10n.actionAutoCheckUpdates,
+        checked: settings.updateCheckEnabled,
+        // Left open: a switch is something people flick and then look at.
+        closesMenu: false,
+        onPressed: () =>
+            settings.setUpdateCheckEnabled(!settings.updateCheckEnabled),
+      ),
+      const SlateMenuSeparator(),
       SlateMenuItem(
         label: l10n.actionAbout,
         onPressed: () => showAboutPaintDialog(context, appVersion),

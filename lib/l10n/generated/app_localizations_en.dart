@@ -541,4 +541,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutLicense => 'Released under the MIT License.';
+
+  @override
+  String get actionCheckUpdatesNow => 'Check for Updates Now';
+
+  @override
+  String get actionAutoCheckUpdates => 'Check for Updates Automatically';
+
+  @override
+  String updateAvailable(String version) {
+    return '$version available';
+  }
+
+  @override
+  String get updateUpToDate => 'Paint is up to date.';
+
+  @override
+  String get updateCheckFailed => 'Could not reach the update repository.';
+
+  @override
+  String get updateChecking => 'Checking for updates...';
+
+  @override
+  String get updateUpgradeHint => 'Copy the upgrade command';
+
+  @override
+  String get updateCommandCopied => 'Command copied';
+
+  @override
+  String get updateDismiss => 'Dismiss';
 }

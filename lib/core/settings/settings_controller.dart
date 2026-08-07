@@ -17,6 +17,8 @@ class SettingsController extends ChangeNotifier {
   static const _keyDefaultHeight = 'default_height';
   static const _keyJpegQuality = 'jpeg_quality';
   static const _keyCustomColors = 'custom_colors';
+  static const _keyUpdateCheckEnabled = 'update_check_enabled';
+  static const _keyLastUpdateCheck = 'last_update_check';
 
   /// How many recent files the File menu remembers.
   static const int maxRecentFiles = 10;
@@ -84,6 +86,31 @@ class SettingsController extends ChangeNotifier {
   Future<void> setDefaultImageSize(int width, int height) async {
     await _prefs.setInt(_keyDefaultWidth, width);
     await _prefs.setInt(_keyDefaultHeight, height);
+    notifyListeners();
+  }
+
+  /// Whether the application may ask the repository, once a day, if a newer
+  /// version has been published.
+  ///
+  /// Off unless the user turns it on. This is the only thing in the program
+  /// that opens a socket, and "no network" is a promise the README makes; it
+  /// stays true for anyone who never touches this switch.
+  bool get updateCheckEnabled =>
+      _prefs.getBool(_keyUpdateCheckEnabled) ?? false;
+
+  Future<void> setUpdateCheckEnabled(bool value) async {
+    await _prefs.setBool(_keyUpdateCheckEnabled, value);
+    notifyListeners();
+  }
+
+  /// When the last automatic check ran, so a daily one is not a per-launch one.
+  DateTime? get lastUpdateCheck {
+    final millis = _prefs.getInt(_keyLastUpdateCheck);
+    return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
+  }
+
+  Future<void> setLastUpdateCheck(DateTime when) async {
+    await _prefs.setInt(_keyLastUpdateCheck, when.millisecondsSinceEpoch);
     notifyListeners();
   }
 

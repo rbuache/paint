@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/canvas_controller.dart';
 import '../controller/document_controller.dart';
 import '../controller/selection_controller.dart';
+import '../controller/update_controller.dart';
 import '../controller/viewport_controller.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../slate/slate.dart';
@@ -94,6 +96,7 @@ class StatusBar extends StatelessWidget {
           const SizedBox(width: 8),
           const SlateSeparator(vertical: true, inset: 7),
           const SizedBox(width: 8),
+          const UpdateNotice(),
           const CopyToClipboardButton(),
         ],
       ),
@@ -178,6 +181,86 @@ class _CopyToClipboardButtonState extends State<CopyToClipboardButton> {
         iconColor: _copied ? palette.accent : null,
         label: _copied ? l10n.copiedToClipboard : l10n.actionCopyToClipboard,
       ),
+    );
+  }
+}
+
+/// A quiet notice that a newer version has been published.
+///
+/// It offers the command rather than running it: Paint is installed by dpkg
+/// into a root-owned directory, so upgrading is `apt`'s job and asking for a
+/// password inside a drawing program would be the wrong shape entirely. One
+/// click puts `sudo apt update && sudo apt upgrade` on the clipboard, which is
+/// the shortest honest path from noticing to upgrading.
+///
+/// Nothing appears unless the user turned update checks on, so for everyone
+/// else this widget is a zero-height nothing.
+class UpdateNotice extends StatefulWidget {
+  const UpdateNotice({super.key});
+
+  /// How long the button stays in its confirming state.
+  static const Duration confirmationDuration = Duration(seconds: 2);
+
+  @override
+  State<UpdateNotice> createState() => _UpdateNoticeState();
+}
+
+class _UpdateNoticeState extends State<UpdateNotice> {
+  bool _copied = false;
+  Timer? _reset;
+
+  @override
+  void dispose() {
+    _reset?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _copyCommand() async {
+    await Clipboard.setData(
+      const ClipboardData(text: UpdateController.upgradeCommand),
+    );
+    if (!mounted) return;
+    setState(() => _copied = true);
+    _reset?.cancel();
+    _reset = Timer(UpdateNotice.confirmationDuration, () {
+      if (mounted) setState(() => _copied = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final updates = context.watch<UpdateController>();
+    final version = updates.availableVersion;
+    if (version == null) return const SizedBox.shrink();
+
+    final l10n = AppLocalizations.of(context);
+    final palette = context.slateColors;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Tooltip(
+          message: l10n.updateUpgradeHint,
+          child: SlateButton(
+            onPressed: _copyCommand,
+            icon: _copied ? SlateIcons.check : SlateIcons.download,
+            iconColor: palette.accent,
+            label: _copied
+                ? l10n.updateCommandCopied
+                : l10n.updateAvailable(version),
+          ),
+        ),
+        const SizedBox(width: 4),
+        SlateIconButton(
+          icon: SlateIcons.close,
+          tooltip: l10n.updateDismiss,
+          size: 22,
+          onPressed: updates.dismiss,
+        ),
+        const SizedBox(width: 8),
+        const SlateSeparator(vertical: true, inset: 7),
+        const SizedBox(width: 8),
+      ],
     );
   }
 }

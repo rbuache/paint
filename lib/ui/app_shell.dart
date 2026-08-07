@@ -6,6 +6,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '../controller/canvas_controller.dart';
 import '../controller/document_controller.dart';
+import '../controller/update_controller.dart';
 import '../io/image_codecs.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../model/tool_settings.dart';
@@ -35,6 +36,11 @@ class _AppShellState extends State<AppShell> with WindowListener {
     super.initState();
     windowManager.addListener(this);
     _syncWindowTitle();
+    // After the first frame, so a slow or hanging network never delays the
+    // window appearing. Does nothing at all unless the user enabled checks.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<UpdateController>().checkIfDue();
+    });
   }
 
   @override

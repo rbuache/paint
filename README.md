@@ -19,7 +19,10 @@ mode, and the whole interface fits in a single window with no floating panels to
 manage.
 
 It is written in Flutter, ships as a `.deb` from a signed APT repository, and
-does everything locally: no accounts, no network, no telemetry.
+does everything locally: no accounts and no telemetry. Nothing it does opens a
+socket, with one exception you have to switch on yourself — an update check that
+asks the repository, once a day, whether a newer version exists. It is off until
+you turn it on, and it never downloads or installs anything.
 
 <details>
 <summary><strong>Dark theme</strong></summary>

@@ -6,11 +6,13 @@ import 'package:provider/provider.dart';
 import '../controller/canvas_controller.dart';
 import '../controller/document_controller.dart';
 import '../controller/selection_controller.dart';
+import '../controller/update_controller.dart';
 import '../controller/viewport_controller.dart';
 import '../core/image_utils.dart';
 import '../core/settings/settings_controller.dart';
 import '../io/clipboard_service.dart';
 import '../io/file_service.dart';
+import '../io/update_check.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../model/selection.dart';
 import '../model/tool_settings.dart';
@@ -339,6 +341,40 @@ class AppActions {
   void zoomFit() => _viewport.fitToWindow();
 
   Future<void> setThemeMode(ThemeMode mode) => _settings.setThemeMode(mode);
+
+  // ---------------------------------------------------------------- Updates
+
+  /// Asks the repository whether a newer version exists, because the user
+  /// pressed the menu item. Reports all three outcomes: a version is waiting,
+  /// nothing is, or the check could not be made — the last one matters, since
+  /// silence after pressing a button reads as "up to date".
+  Future<void> checkForUpdates() async {
+    final updates = context.read<UpdateController>();
+    // Both captured before the first await. This is invoked from a menu row,
+    // and choosing it closes the menu — which unmounts the very context the
+    // row was built with. Reaching for `context` afterwards finds a dead
+    // element, so the answer would be computed and then quietly dropped.
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = _l10n;
+
+    void report(String message) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(message)));
+    }
+
+    report(l10n.updateChecking);
+    try {
+      final available = await updates.checkNow();
+      report(
+        available == null
+            ? l10n.updateUpToDate
+            : l10n.updateAvailable(available),
+      );
+    } on UpdateCheckFailure {
+      report(l10n.updateCheckFailed);
+    }
+  }
 
   void selectTool(ToolId id) => _tools.activeTool = id;
 

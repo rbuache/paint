@@ -291,7 +291,8 @@ sudo apt install paint</code></pre>
     <li><strong>Files</strong> — PNG, JPEG, BMP, GIF, TIFF, TGA, ICO and more</li>
     <li><strong>Clipboard</strong> — copy a sketch straight into a chat</li>
   </ul>
-  <p>Everything happens locally: no accounts, no network, no telemetry.
+  <p>Everything happens locally: no accounts, no telemetry, and no network
+     access unless you switch on the optional update check.
      Built against glibc 2.35, so it runs on Ubuntu 22.04+, Debian 12+ and
      anything newer.</p>
 

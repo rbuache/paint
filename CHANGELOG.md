@@ -7,6 +7,30 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **An optional update check**, under **Help ▸ Check for Updates
+  Automatically**. It is off until you turn it on — this is the only thing in
+  the program that opens a socket, and "no network" stays literally true for
+  anyone who leaves it alone. Once enabled it asks the APT repository, at most
+  once a day, whether a newer version has been published, and shows a quiet
+  notice in the status bar with a button that copies
+  `sudo apt update && sudo apt upgrade`.
+
+  It never downloads and never installs. Paint is installed by dpkg into a
+  root-owned directory, so replacing its own files would need privilege it does
+  not have and would leave the package database describing files that are no
+  longer there. **Help ▸ Check for Updates Now** runs a single check whatever
+  the setting says, and reports when it could not reach the repository rather
+  than implying everything is current.
+
+### Changed
+
+- The published download page leads with what the program is — icon, name, a
+  download button naming the exact package and its size, and a screenshot that
+  follows the reader's colour scheme — instead of opening with a wall of shell
+  commands. The apt instructions are unchanged and still the recommended path.
+
 ## [0.1.0] - 2026-08-07
 
 First release: a complete, usable editor with parity against classic MS Paint.

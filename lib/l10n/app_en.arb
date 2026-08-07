@@ -310,5 +310,47 @@
   "aboutLicense": "Released under the MIT License.",
   "@aboutLicense": {
     "description": "Licence line in the About dialog"
+  },
+  "actionCheckUpdatesNow": "Check for Updates Now",
+  "@actionCheckUpdatesNow": {
+    "description": "Help menu command that checks the repository immediately"
+  },
+  "actionAutoCheckUpdates": "Check for Updates Automatically",
+  "@actionAutoCheckUpdates": {
+    "description": "Help menu toggle enabling a once-a-day update check"
+  },
+  "updateAvailable": "{version} available",
+  "@updateAvailable": {
+    "description": "Status bar notice that a newer version has been published",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "0.2.0"
+      }
+    }
+  },
+  "updateUpToDate": "Paint is up to date.",
+  "@updateUpToDate": {
+    "description": "Shown when an explicit update check finds nothing newer"
+  },
+  "updateCheckFailed": "Could not reach the update repository.",
+  "@updateCheckFailed": {
+    "description": "Shown when an explicit update check could not complete"
+  },
+  "updateChecking": "Checking for updates...",
+  "@updateChecking": {
+    "description": "Shown while an explicit update check is running"
+  },
+  "updateUpgradeHint": "Copy the upgrade command",
+  "@updateUpgradeHint": {
+    "description": "Tooltip on the status bar update notice"
+  },
+  "updateCommandCopied": "Command copied",
+  "@updateCommandCopied": {
+    "description": "Confirmation after copying the apt upgrade command"
+  },
+  "updateDismiss": "Dismiss",
+  "@updateDismiss": {
+    "description": "Button that hides the update notice"
   }
 }

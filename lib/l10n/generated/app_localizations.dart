@@ -1095,6 +1095,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Released under the MIT License.'**
   String get aboutLicense;
+
+  /// Help menu command that checks the repository immediately
+  ///
+  /// In en, this message translates to:
+  /// **'Check for Updates Now'**
+  String get actionCheckUpdatesNow;
+
+  /// Help menu toggle enabling a once-a-day update check
+  ///
+  /// In en, this message translates to:
+  /// **'Check for Updates Automatically'**
+  String get actionAutoCheckUpdates;
+
+  /// Status bar notice that a newer version has been published
+  ///
+  /// In en, this message translates to:
+  /// **'{version} available'**
+  String updateAvailable(String version);
+
+  /// Shown when an explicit update check finds nothing newer
+  ///
+  /// In en, this message translates to:
+  /// **'Paint is up to date.'**
+  String get updateUpToDate;
+
+  /// Shown when an explicit update check could not complete
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the update repository.'**
+  String get updateCheckFailed;
+
+  /// Shown while an explicit update check is running
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for updates...'**
+  String get updateChecking;
+
+  /// Tooltip on the status bar update notice
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the upgrade command'**
+  String get updateUpgradeHint;
+
+  /// Confirmation after copying the apt upgrade command
+  ///
+  /// In en, this message translates to:
+  /// **'Command copied'**
+  String get updateCommandCopied;
+
+  /// Button that hides the update notice
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get updateDismiss;
 }
 
 class _AppLocalizationsDelegate
