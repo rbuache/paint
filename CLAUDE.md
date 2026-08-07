@@ -44,8 +44,12 @@ bash packaging/publish_apt.sh /tmp/repo build/dist/*.deb
 tools/set_version.sh                   # print version; pass one to set it
 ```
 
-Run all four checks before claiming a change is done. They are exactly what CI
-runs, so a green local run means a green CI run.
+Run all four checks before claiming a change is done. They are exactly what the
+CI analyze job runs, so a green local run means that job is green.
+
+The packaging job is a different matter: it builds in an `ubuntu:22.04`
+container, and 24.04 tooling is more permissive than 22.04's. Green packaging
+locally does **not** imply green packaging in CI.
 
 ## Running the app headlessly
 
@@ -135,12 +139,19 @@ in the widgets.
 - `flutter build linux` on Ubuntu 24.04 produces a binary needing glibc 2.39.
   Release builds must run in an `ubuntu:22.04` container; see
   [docs/PACKAGING.md](docs/PACKAGING.md).
-- That container is a bare image running as root, which costs two things CI had
-  to be taught: `subosito/flutter-action` shells out to `jq`, which is not
-  installed, and git refuses both the checkout and the Flutter SDK as
-  "dubious ownership" until `safe.directory` is set. Both are handled in
-  `.github/workflows/`; add anything similar there rather than working around it
-  in a build script.
+- That container is a bare image running as root, which costs three things CI
+  had to be taught: `subosito/flutter-action` shells out to `jq`, which is not
+  installed; git refuses both the checkout and the Flutter SDK as
+  "dubious ownership" until `safe.directory` is set; and
+  `/etc/dpkg/dpkg.cfg.d/excludes` drops `/usr/share/man` and most of
+  `/usr/share/doc` on install, so after `apt-get install` those files are listed
+  by `dpkg -L` but are not on disk. Check documentation with
+  `dpkg-deb --contents`, not on the filesystem. All handled in
+  `.github/workflows/`; add anything similar there rather than in a build script.
+- `desktop-file-validate` on 24.04 (0.27) accepts spec `Version=1.5`; the 22.04
+  one CI uses (0.26) rejects it. The desktop entry declares 1.1 for that reason.
+  Validating packaging locally proves less than it looks — the container is the
+  arbiter.
 - `package:image` cannot encode WebP or PSD — decode only. `ImageCodecs` already
   models this with `canEncode`.
 - `super_clipboard` needs a Rust toolchain; `pasteboard` is used instead.

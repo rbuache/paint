@@ -122,11 +122,44 @@ jobs:
       - name: Smoke-test the install
         run: |
           apt-get install -y ./build/dist/*.deb
+
+          # Runtime files are checked on disk: a missing path here is a broken
+          # install.
+          for path in \
+            /usr/bin/paint \
+            /usr/lib/paint/paint \
+            /usr/lib/paint/data/icudtl.dat \
+            /usr/share/applications/io.github.rbuache.Paint.desktop \
+            /usr/share/icons/hicolor/256x256/apps/io.github.rbuache.Paint.png \
+            /usr/share/metainfo/io.github.rbuache.Paint.metainfo.xml
+          do
+            if [ -e "$path" ]; then
+              echo "  installed  $path"
+            else
+              echo "  MISSING    $path"
+              exit 1
+            fi
+          done
           test -x /usr/bin/paint
-          test -f /usr/share/applications/io.github.rbuache.Paint.desktop
-          test -f /usr/share/icons/hicolor/256x256/apps/io.github.rbuache.Paint.png
-          test -f /usr/share/man/man1/paint.1.gz
-          echo "installed files look right"
+
+          # Documentation is checked inside the package instead of on disk.
+          # Container base images ship /etc/dpkg/dpkg.cfg.d/excludes, which
+          # drops /usr/share/man and most of /usr/share/doc during extraction,
+          # so a filesystem check would test the image's policy rather than
+          # whether the package ships the files.
+          dpkg-deb --contents build/dist/*.deb > /tmp/contents.txt
+          for path in \
+            ./usr/share/man/man1/paint.1.gz \
+            ./usr/share/doc/paint/copyright \
+            ./usr/share/doc/paint/changelog.gz
+          do
+            if grep -q " $path$" /tmp/contents.txt; then
+              echo "  packaged   $path"
+            else
+              echo "  MISSING    $path (not in the .deb)"
+              exit 1
+            fi
+          done
 
       - name: Package the portable tarball
         run: |
