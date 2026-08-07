@@ -7,4 +7,8 @@
 // See clipboard_channel.cc for why this is not left to a plugin.
 void paint_clipboard_channel_register(FlView* view);
 
+// Hands the last copied image to the clipboard manager so it outlives the
+// process. Call once, while shutting down.
+void paint_clipboard_store_on_exit();
+
 #endif  // RUNNER_CLIPBOARD_CHANNEL_H_

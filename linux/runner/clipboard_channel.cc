@@ -53,12 +53,15 @@ static void handle_write_image(FlMethodCall* method_call) {
   }
 
   GtkClipboard* clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+  // Releases the previous copy's ownership before taking the selection again.
+  gtk_clipboard_clear(clipboard);
   gtk_clipboard_set_image(clipboard, pixbuf);
-  // Ask any clipboard manager to keep the image once this process exits.
-  // Without it, an X11 clipboard dies with the application that owns it, and
-  // "copy, quit, paste" would silently produce nothing.
+  // Marks the contents as worth keeping; the matching store() runs once at
+  // shutdown, which is what gtk_clipboard_store is documented for. Calling it
+  // per copy would hand the whole image to the clipboard manager every time,
+  // which buys nothing while this process is running and still owns the
+  // selection. See paint_clipboard_store_on_exit.
   gtk_clipboard_set_can_store(clipboard, nullptr, 0);
-  gtk_clipboard_store(clipboard);
 
   fl_method_call_respond_success(method_call, nullptr, nullptr);
 }
@@ -79,4 +82,12 @@ void paint_clipboard_channel_register(FlView* view) {
       FL_METHOD_CODEC(codec));
   fl_method_channel_set_method_call_handler(channel, method_call_cb, nullptr,
                                             nullptr);
+}
+
+void paint_clipboard_store_on_exit() {
+  // The documented use of gtk_clipboard_store: on the way out, ask the
+  // clipboard manager to keep whatever was last copied, so the image survives
+  // the application quitting. An X11 selection otherwise dies with its owner.
+  GtkClipboard* clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+  gtk_clipboard_store(clipboard);
 }
