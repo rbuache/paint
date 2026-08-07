@@ -26,10 +26,12 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Install toolchain
+        # jq is needed by subosito/flutter-action's setup script and is not in
+        # the base image; without it the action fails before Flutter is fetched.
         run: |
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            ca-certificates curl git unzip xz-utils zip file \
+            ca-certificates curl git jq unzip xz-utils zip file \
             clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev \
             dpkg-dev apt-utils desktop-file-utils
 
