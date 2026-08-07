@@ -114,7 +114,10 @@ jobs:
           # Lintian findings are informational here: several of its policy
           # checks do not apply to a self-contained bundled application.
           lintian --no-tag-display-limit build/dist/*.deb || true
-          dpkg-deb --contents build/dist/*.deb | head -40
+          # sed rather than head: head closes the pipe early, which makes
+          # dpkg-deb report a broken pipe and litter the log with an error
+          # for a step that actually succeeded.
+          dpkg-deb --contents build/dist/*.deb | sed -n '1,40p'
 
       - name: Smoke-test the install
         run: |
