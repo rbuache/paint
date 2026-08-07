@@ -1,0 +1,24 @@
+Package: paint
+Architecture: amd64
+Version: 0.1.0
+Priority: optional
+Section: graphics
+Maintainer: rbuache <rbuache@gmail.com>
+Installed-Size: 26924
+Depends: libatk1.0-0 (>= 2.7.91), libc6 (>= 2.34), libcairo-gobject2 (>= 1.10.0), libcairo2 (>= 1.14.0), libepoxy0 (>= 1.0), libfontconfig1 (>= 2.12.6), libgcc-s1 (>= 3.0), libgdk-pixbuf-2.0-0 (>= 2.22.0), libglib2.0-0 (>= 2.39.90), libgtk-3-0 (>= 3.21.4), libharfbuzz0b (>= 0.6.0), libpango-1.0-0 (>= 1.29.4), libpangocairo-1.0-0 (>= 1.14.0), libstdc++6 (>= 4.1.1)
+Filename: pool/main/p/paint/paint_0.1.0_amd64.deb
+Size: 8907644
+MD5sum: e9b85b447ab9c2f760ccfaf91561e4e8
+SHA1: c548d8908725bc6cf6d2dd84624ff4529008a60c
+SHA256: 0dcc041114939bf489c648b0db45d762383c23e7abe9df2a4b27041a49b745fd
+SHA512: d718ed3dbcff5194388b49bac2f03b56e2a4517847700e28334f276b0cf859a4a71aab44751d6e08857447e3fd4eb401c00138818db0e6ec2e291786695ad64e
+Homepage: https://github.com/rbuache/paint
+Description: simple, easy-to-use image editor
+ Paint is a straightforward raster image editor for the Linux desktop, in the
+ spirit of the classic Windows accessory: open a picture, draw on it, save it,
+ and get on with your day.
+ .
+ It offers pencil, brush, eraser, fill, shape and text tools, rectangular and
+ free-form selection, the usual flip/rotate/resize/skew operations, deep undo,
+ drag-and-drop, clipboard support and a restrained light or dark theme.
+

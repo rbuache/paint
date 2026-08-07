@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Paint — APT repository</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 46rem; margin: 3rem auto;
+         padding: 0 1rem; line-height: 1.55; color: #22262c; }
+  pre { background: #f4f5f7; padding: 1rem; overflow-x: auto; border-radius: 6px; }
+  code { font-family: ui-monospace, monospace; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #16181b; color: #dfe3e8; }
+    pre { background: #22262b; }
+  }
+</style>
+<h1>Paint — APT repository</h1>
+<p>A simple, easy-to-use image editor for Linux.</p>
+<h2>Install</h2>
+<pre><code>sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://rbuache.github.io/paint/paint-archive-keyring.gpg \
+  | sudo tee /etc/apt/keyrings/paint.gpg > /dev/null
+sudo curl -fsSL -o /etc/apt/sources.list.d/paint.sources \
+  https://rbuache.github.io/paint/paint.sources
+sudo apt update
+sudo apt install paint</code></pre>
+<h2>Update</h2>
+<pre><code>sudo apt update &amp;&amp; sudo apt upgrade</code></pre>
+<p><a href="https://github.com/rbuache/paint">Source code and releases</a></p>

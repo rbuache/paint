@@ -1,0 +1,20 @@
+Architectures: amd64
+Codename: stable
+Components: main
+Date: Fri, 07 Aug 2026 09:46:22 +0000
+Description: Paint image editor
+Label: Paint
+Origin: Paint
+Suite: stable
+MD5Sum:
+ 757349a6c95f9d6e2bbe3b000fc3ee25             1383 main/binary-amd64/Packages
+ fdd07c4ed273c6565678ee5ff064da44              860 main/binary-amd64/Packages.gz
+SHA1:
+ 0181eb6ea4e2b1402b221143a027d9efb1cf1895             1383 main/binary-amd64/Packages
+ 59f1f52975668543f17358af2a402c591d8dbd5d              860 main/binary-amd64/Packages.gz
+SHA256:
+ 714790c351600a8fed4eddae4d2407001204b03398da39027cabe5875e908e31             1383 main/binary-amd64/Packages
+ 10d4e56cd8370e80ffdf9ef571e61f6de4d2930f04f8016bf2082417b18a3b13              860 main/binary-amd64/Packages.gz
+SHA512:
+ 3e1645264e8d202de245725ef33bf0882b93d15cfdb2068a1ff4f2bef671cc847e76849c8f8a64d33ca20dbef6115a37debdbabbd5b6ab058fad9f60a5c7b537             1383 main/binary-amd64/Packages
+ 1446d759fdd43dd32acf46ac18a5fabbc21188da01886f2cbe24fb2c17c280655a9bebf41405b59499aaeacbbfa6257823a7f74401ef36f210336025e3f03bbb              860 main/binary-amd64/Packages.gz
