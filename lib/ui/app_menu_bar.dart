@@ -7,6 +7,7 @@ import '../core/settings/settings_controller.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../slate/slate.dart';
 import 'app_actions.dart';
+import 'dialogs.dart';
 import 'shortcut_label.dart';
 
 /// The application menu, rendered in-app rather than through a GTK menu bar.
@@ -275,7 +276,7 @@ class AppMenuBar extends StatelessWidget {
     return <Widget>[
       SlateMenuItem(
         label: l10n.actionAbout,
-        onPressed: () => _showAbout(context),
+        onPressed: () => showAboutPaintDialog(context, appVersion),
       ),
     ];
   }
@@ -302,17 +303,6 @@ class AppMenuBar extends StatelessWidget {
       if (context.mounted) await Navigator.of(context).maybePop();
     }
   }
-
-  static void _showAbout(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    showAboutDialog(
-      context: context,
-      applicationName: l10n.appTitle,
-      applicationVersion: appVersion,
-      applicationIcon: const _AboutIcon(),
-      children: <Widget>[Text(l10n.aboutDescription)],
-    );
-  }
 }
 
 /// Version string, replaced at build time by `tools/set_version.sh`.
@@ -320,12 +310,3 @@ const String appVersion = String.fromEnvironment(
   'APP_VERSION',
   defaultValue: '0.1.0',
 );
-
-class _AboutIcon extends StatelessWidget {
-  const _AboutIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset('assets/icon/paint.png', width: 48, height: 48);
-  }
-}

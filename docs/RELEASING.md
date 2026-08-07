@@ -73,9 +73,10 @@ rather than as a commit log.
 
 ## Before tagging
 
-Work through [manual-test.md](manual-test.md). CI covers the analyzer, the unit
-tests, the package layout and an install smoke test, but it cannot tell you
-whether drawing feels right.
+Run the application and draw something. CI covers the analyzer, the unit tests,
+the package layout and an install smoke test, but it cannot tell you whether
+drawing feels right, and that is the only thing a release of this actually
+promises.
 
 ## If a release goes wrong
 

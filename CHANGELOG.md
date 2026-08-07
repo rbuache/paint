@@ -23,7 +23,9 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   defaults: flat surfaces, hairline rules instead of elevation, tighter rows,
   and a thin icon set drawn as paths so every glyph matches at any size.
   Dropdowns in particular no longer sit in a heavy bordered box — they read as
-  their value until the pointer reaches them.
+  their value until the pointer reaches them. **Help ▸ About Paint** is part of
+  that: it was the last window still drawn by Material, and it no longer opens a
+  separate licence browser.
 - The system title bar is replaced by one the application draws itself, so the
   menus, the document name and the window buttons share a single row in the
   app's own colours instead of a system bar stacked on a separate menu row.

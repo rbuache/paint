@@ -1089,6 +1089,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'pt'**
   String get unitPoints;
+
+  /// Licence line in the About dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Released under the MIT License.'**
+  String get aboutLicense;
 }
 
 class _AppLocalizationsDelegate

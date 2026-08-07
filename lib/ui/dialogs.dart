@@ -667,3 +667,60 @@ class _IntField extends StatelessWidget {
     );
   }
 }
+
+/// The About box.
+///
+/// Material's `showAboutDialog` is convenient but arrives with its own card,
+/// its own type scale and a "View licenses" page that lands the user in a
+/// Material list — three surfaces the rest of the application no longer looks
+/// anything like. The dependency licences are in the repository for anyone who
+/// wants them; this box says what the program is and gets out of the way.
+Future<void> showAboutPaintDialog(BuildContext context, String version) {
+  final l10n = AppLocalizations.of(context);
+  return showDialog<void>(
+    context: context,
+    builder: (context) {
+      final theme = context.slate;
+      return SlateDialog(
+        title: l10n.actionAbout,
+        width: 380,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Image.asset('assets/icon/paint.png', width: 44, height: 44),
+                const SizedBox(width: 14),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      l10n.appTitle,
+                      style: theme.titleStyle.copyWith(fontSize: 17),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(l10n.aboutVersion(version), style: theme.dimTextStyle),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(l10n.aboutDescription, style: theme.textStyle),
+            const SizedBox(height: 8),
+            Text(l10n.aboutLicense, style: theme.dimTextStyle),
+          ],
+        ),
+        actions: <Widget>[
+          SlateButton(
+            kind: SlateButtonKind.primary,
+            label: l10n.buttonClose,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      );
+    },
+  );
+}

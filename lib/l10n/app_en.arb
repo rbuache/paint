@@ -306,5 +306,9 @@
   "unitPoints": "pt",
   "@unitPoints": {
     "description": "Abbreviation for typographic points, shown after a font size"
+  },
+  "aboutLicense": "Released under the MIT License.",
+  "@aboutLicense": {
+    "description": "Licence line in the About dialog"
   }
 }

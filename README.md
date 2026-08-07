@@ -135,7 +135,6 @@ bash packaging/build_appimage.sh         # → build/dist/Paint-<version>-x86_64
 | [DECISIONS.md](docs/DECISIONS.md) | The design calls, with their reasoning |
 | [PACKAGING.md](docs/PACKAGING.md) | The `.deb`, the AppImage and the APT repository |
 | [RELEASING.md](docs/RELEASING.md) | Versioning and how to cut a release |
-| [manual-test.md](docs/manual-test.md) | Pre-release checklist |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Conventions for changes |
 
 ## Uninstall
