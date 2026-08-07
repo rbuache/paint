@@ -60,7 +60,9 @@ First release: a complete, usable editor with parity against classic MS Paint.
 - **Internationalization** wired up through ARB files, English for now.
 - **Packaging** — Debian package with desktop entry, MIME associations,
   hicolor icons, AppStream metadata and a man page; an AppImage; and a signed
-  APT repository published to GitHub Pages.
+  APT repository published to GitHub Pages, with a download page generated
+  alongside it so the version, the link and the size always match the package
+  that was just released.
 
 [Unreleased]: https://github.com/rbuache/paint/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/rbuache/paint/releases/tag/v0.1.0

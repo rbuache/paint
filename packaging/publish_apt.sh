@@ -35,8 +35,13 @@ PAGES_URL="${PAGES_URL:-https://rbuache.github.io/paint}"
 KEYRING_NAME="paint-archive-keyring.gpg"
 
 mkdir -p "$OUTPUT/pool/$COMPONENT/p/paint"
+# The landing page advertises the newest package, so it needs to know which of
+# these that is. Recorded here rather than later because the script changes
+# directory below and these paths are the caller's, not ours.
 for deb in "$@"; do
   cp -f "$deb" "$OUTPUT/pool/$COMPONENT/p/paint/"
+  DEB_FILE="$(basename "$deb")"
+  DEB_SIZE="$(du -h "$deb" | cut -f1)"
 done
 
 for arch in $ARCHITECTURES; do
@@ -119,33 +124,183 @@ Architectures: $ARCHITECTURES
 Signed-By: /etc/apt/keyrings/paint.gpg
 SOURCES
 
+DEB_VERSION="${DEB_FILE#paint_}"
+DEB_VERSION="${DEB_VERSION%_*}"
+DEB_PATH="pool/$COMPONENT/p/paint/$DEB_FILE"
+
+# The screenshots and the icon are carried over from the source tree so the
+# page can show the application rather than only describe it. Copied rather
+# than hotlinked to the repository: a raw.githubusercontent URL is a second
+# host that can rate-limit or move, and this page has to work for someone who
+# arrived to install software.
+for shot in screenshot-light screenshot-dark; do
+  if [[ -f "$REPO_ROOT/docs/images/$shot.png" ]]; then
+    cp -f "$REPO_ROOT/docs/images/$shot.png" "$OUTPUT/$shot.png"
+  fi
+done
+ICON_SOURCE="$REPO_ROOT/packaging/icons/hicolor/128x128/apps/io.github.rbuache.Paint.png"
+if [[ -f "$ICON_SOURCE" ]]; then
+  cp -f "$ICON_SOURCE" "$OUTPUT/paint.png"
+fi
+
+# No backticks and no dollar signs below except the ones meant to expand: the
+# heredoc is unquoted so the URLs and the version can be interpolated.
 cat > "$OUTPUT/index.html" <<HTML
 <!doctype html>
+<html lang="en">
 <meta charset="utf-8">
-<title>Paint — APT repository</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paint — a simple image editor for Linux</title>
+<meta name="description" content="A simple, easy-to-use image editor for Linux. Open a picture, draw on it, save it.">
+<link rel="icon" href="paint.png">
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 46rem; margin: 3rem auto;
-         padding: 0 1rem; line-height: 1.55; color: #22262c; }
-  pre { background: #f4f5f7; padding: 1rem; overflow-x: auto; border-radius: 6px; }
-  code { font-family: ui-monospace, monospace; }
+  :root {
+    --bg: #ffffff; --panel: #f6f7f9; --line: #e4e7ec; --ink: #22262c;
+    --dim: #667080; --accent: #a8681a; --accent-ink: #ffffff;
+    --code-bg: #f4f5f7; --shadow: 0 1px 2px rgba(20,25,35,.06), 0 8px 24px rgba(20,25,35,.08);
+  }
   @media (prefers-color-scheme: dark) {
-    body { background: #16181b; color: #dfe3e8; }
-    pre { background: #22262b; }
+    :root {
+      --bg: #16181c; --panel: #1c1f24; --line: #2b3138; --ink: #d8dde4;
+      --dim: #8a939f; --accent: #e0a33e; --accent-ink: #1b1206;
+      --code-bg: #1a1d22; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 1.25rem 5rem;
+    font-family: system-ui, -apple-system, "Segoe UI", Ubuntu, sans-serif;
+    line-height: 1.6; color: var(--ink); background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 54rem; margin: 0 auto; }
+  header { text-align: center; padding: 4rem 0 2.5rem; }
+  header img.logo { width: 84px; height: 84px; image-rendering: auto; }
+  h1 { font-size: 2.75rem; letter-spacing: -.02em; margin: 1rem 0 .4rem; }
+  .tagline { font-size: 1.2rem; color: var(--dim); margin: 0 auto; max-width: 34rem; }
+  .cta { margin: 2.25rem 0 .75rem; display: flex; gap: .75rem;
+         justify-content: center; flex-wrap: wrap; }
+  a.button {
+    display: inline-flex; align-items: center; gap: .6rem;
+    background: var(--accent); color: var(--accent-ink);
+    text-decoration: none; font-weight: 600; font-size: 1.05rem;
+    padding: .8rem 1.5rem; border-radius: 8px; border: 1px solid var(--accent);
+    transition: transform .06s ease, filter .15s ease;
+  }
+  a.button:hover { filter: brightness(1.07); }
+  a.button:active { transform: translateY(1px); }
+  a.button.secondary {
+    background: transparent; color: var(--ink); border-color: var(--line);
+    font-weight: 500;
+  }
+  a.button.secondary:hover { background: var(--panel); filter: none; }
+  .meta { color: var(--dim); font-size: .9rem; margin: 0; }
+  figure { margin: 3rem 0 0; }
+  figure img {
+    width: 100%; height: auto; display: block;
+    border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow);
+  }
+  h2 { font-size: 1.4rem; letter-spacing: -.01em; margin: 3.5rem 0 .5rem;
+       padding-top: 2rem; border-top: 1px solid var(--line); }
+  h2:first-of-type { margin-top: 3rem; }
+  h3 { font-size: 1rem; margin: 1.75rem 0 .4rem; }
+  p { margin: .5rem 0 1rem; }
+  p.lead { color: var(--dim); }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line);
+    padding: 1rem 1.1rem; overflow-x: auto; border-radius: 8px;
+    font-size: .875rem; line-height: 1.65; margin: .5rem 0 1rem;
+  }
+  code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  ul.features { list-style: none; padding: 0; margin: 1rem 0;
+                display: grid; gap: .55rem 1.5rem;
+                grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  ul.features li { padding-left: 1.35rem; position: relative; color: var(--dim); }
+  ul.features li strong { color: var(--ink); font-weight: 600; }
+  ul.features li::before {
+    content: "—"; position: absolute; left: 0; color: var(--accent);
+  }
+  footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+           color: var(--dim); font-size: .9rem; display: flex;
+           justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  a { color: var(--accent); }
+  footer a { color: var(--dim); }
+  @media (max-width: 34rem) {
+    header { padding-top: 2.5rem; }
+    h1 { font-size: 2.1rem; }
+    a.button { width: 100%; justify-content: center; }
   }
 </style>
-<h1>Paint — APT repository</h1>
-<p>A simple, easy-to-use image editor for Linux.</p>
-<h2>Install</h2>
-<pre><code>sudo install -d -m 0755 /etc/apt/keyrings
+
+<div class="wrap">
+  <header>
+    <img class="logo" src="paint.png" alt="">
+    <h1>Paint</h1>
+    <p class="tagline">A simple, easy-to-use image editor for Linux.
+       Open a picture, draw on it, save it, and get on with your day.</p>
+
+    <div class="cta">
+      <a class="button" href="$DEB_PATH" download>
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none"
+             stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 2.5v7.5"/><path d="M4.5 7L8 10.5 11.5 7"/>
+          <path d="M2.5 12.5v1h11v-1"/>
+        </svg>
+        Download for Linux
+      </a>
+      <a class="button secondary" href="https://github.com/rbuache/paint/releases/latest">
+        AppImage &amp; other downloads
+      </a>
+    </div>
+    <p class="meta">$DEB_FILE &middot; $DEB_SIZE &middot; 64-bit Debian package</p>
+  </header>
+
+  <figure>
+    <picture>
+      <source srcset="screenshot-dark.png" media="(prefers-color-scheme: dark)">
+      <img src="screenshot-light.png"
+           alt="Paint with a screenshot open, a red ellipse and an arrow drawn on it">
+    </picture>
+  </figure>
+
+  <h2>Install with apt</h2>
+  <p class="lead">Adds the signed repository, so <code>apt upgrade</code> keeps
+     Paint current along with everything else on the machine.</p>
+  <pre><code>sudo install -d -m 0755 /etc/apt/keyrings
 curl -fsSL $PAGES_URL/$KEYRING_NAME \\
   | sudo tee /etc/apt/keyrings/paint.gpg > /dev/null
 sudo curl -fsSL -o /etc/apt/sources.list.d/paint.sources \\
   $PAGES_URL/paint.sources
 sudo apt update
 sudo apt install paint</code></pre>
-<h2>Update</h2>
-<pre><code>sudo apt update &amp;&amp; sudo apt upgrade</code></pre>
-<p><a href="https://github.com/rbuache/paint">Source code and releases</a></p>
+
+  <h3>Updating</h3>
+  <pre><code>sudo apt update &amp;&amp; sudo apt upgrade</code></pre>
+
+  <h3>Or install the single file</h3>
+  <p class="lead">No repository, and no automatic updates.</p>
+  <pre><code>sudo apt install ./$DEB_FILE</code></pre>
+
+  <h2>What it does</h2>
+  <ul class="features">
+    <li><strong>Draw</strong> — pencil, brush, eraser, fill, shapes, text</li>
+    <li><strong>Select</strong> — rectangular and free-form, move and resize</li>
+    <li><strong>Transform</strong> — flip, rotate, resize, stretch and skew</li>
+    <li><strong>Undo</strong> — bounded by memory, not by three steps</li>
+    <li><strong>Files</strong> — PNG, JPEG, BMP, GIF, TIFF, TGA, ICO and more</li>
+    <li><strong>Clipboard</strong> — copy a sketch straight into a chat</li>
+  </ul>
+  <p>Everything happens locally: no accounts, no network, no telemetry.
+     Built against glibc 2.35, so it runs on Ubuntu 22.04+, Debian 12+ and
+     anything newer.</p>
+
+  <footer>
+    <span>Paint $DEB_VERSION &middot; MIT licensed</span>
+    <span><a href="https://github.com/rbuache/paint">Source code</a> &middot;
+          <a href="https://github.com/rbuache/paint/releases">All releases</a></span>
+  </footer>
+</div>
 HTML
 
 # GitHub Pages runs Jekyll by default, which would skip the dists/ directory
