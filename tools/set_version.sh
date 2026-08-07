@@ -40,6 +40,18 @@ BUILD="$(( ${BUILD:-0} + 1 ))"
 
 sed -i "s/^version: .*/version: $VERSION+$BUILD/" pubspec.yaml
 
+# Dart cannot read pubspec at runtime, so the value is copied into a constant.
+# This is not cosmetic: the update check compares that constant against what the
+# repository publishes, so a build that understates its own version would tell
+# every user an upgrade is waiting and never stop.
+VERSION_DART="lib/core/app_version.dart"
+sed -i "s/  defaultValue: '[^']*',/  defaultValue: '$VERSION',/" "$VERSION_DART"
+if ! grep -q "defaultValue: '$VERSION'," "$VERSION_DART"; then
+  echo "failed to set the version in $VERSION_DART" >&2
+  echo "the defaultValue line must stay on one line for the substitution" >&2
+  exit 1
+fi
+
 DATE="$(date -u +%Y-%m-%d)"
 METAINFO="packaging/deb/io.github.rbuache.Paint.metainfo.xml"
 

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../controller/document_controller.dart';
 import '../controller/update_controller.dart';
+import '../core/app_version.dart';
 import '../core/settings/settings_controller.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../slate/slate.dart';
@@ -323,9 +324,3 @@ class AppMenuBar extends StatelessWidget {
     }
   }
 }
-
-/// Version string, replaced at build time by `tools/set_version.sh`.
-const String appVersion = String.fromEnvironment(
-  'APP_VERSION',
-  defaultValue: '0.1.0',
-);

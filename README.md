@@ -47,8 +47,8 @@ sudo apt update && sudo apt install paint
 Or grab a single file from [Releases](https://github.com/rbuache/paint/releases):
 
 ```bash
-sudo apt install ./paint_0.1.0_amd64.deb   # Debian package
-chmod +x Paint-0.1.0-x86_64.AppImage       # or the portable AppImage
+sudo apt install ./paint_0.2.0_amd64.deb   # Debian package
+chmod +x Paint-0.2.0-x86_64.AppImage       # or the portable AppImage
 ```
 
 Binaries are built against glibc 2.35, so they run on Ubuntu 22.04+, Debian 12+
