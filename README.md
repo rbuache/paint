@@ -138,6 +138,22 @@ bash packaging/build_appimage.sh         # → build/dist/Paint-<version>-x86_64
 | [manual-test.md](docs/manual-test.md) | Pre-release checklist |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Conventions for changes |
 
+## Uninstall
+
+```bash
+sudo apt remove paint
+```
+
+Settings live in `~/.local/share/io.github.rbuache.paint/` and are deliberately
+left behind, so reinstalling picks up your theme, recent files and custom
+colours. To start clean:
+
+```bash
+rm -rf ~/.local/share/io.github.rbuache.paint
+```
+
+If you installed the AppImage instead, delete the file — it installs nothing.
+
 ## Licence
 
 MIT — see [LICENSE](LICENSE).
