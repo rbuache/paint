@@ -117,7 +117,12 @@ abstract final class AppTheme {
 
   /// Height of the toolbar and status bar rows. Kept tight so the canvas gets
   /// the window.
-  static const double barHeight = 34;
+  static const double barHeight = 30;
+
+  /// Height of the merged title-and-menu bar. Slightly taller than the other
+  /// rows because it carries the window buttons, but still well short of a
+  /// system title bar plus a separate menu row.
+  static const double windowBarHeight = 36;
   static const double toolButtonSize = 30;
 
   static ThemeData light() => _build(Brightness.light);

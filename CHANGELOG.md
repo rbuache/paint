@@ -16,6 +16,12 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The system title bar is replaced by one the application draws itself, so the
+  menus, the document name and the window buttons share a single row in the
+  app's own colours instead of a system bar stacked on a separate menu row.
+  That is one row of chrome less, and the window reads as one piece. Dragging
+  the bar moves the window, double-clicking it maximises, and the window edges
+  resize as usual.
 - The mouse wheel now zooms around the pointer instead of scrolling. Shift and
   the wheel scrolls sideways, and dragging with the middle button still pans in
   any direction.

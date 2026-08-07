@@ -121,6 +121,11 @@
   "colorHex": "Hex",
   "colorInvalidHex": "Enter a color like #3366FF",
 
+  "windowMinimize": "Minimize",
+  "windowMaximize": "Maximize",
+  "windowRestore": "Restore",
+  "windowClose": "Close",
+
   "themeSystem": "Follow system",
   "themeLight": "Light",
   "themeDark": "Dark",

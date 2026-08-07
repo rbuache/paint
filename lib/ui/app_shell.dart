@@ -11,12 +11,12 @@ import '../l10n/generated/app_localizations.dart';
 import '../model/tool_settings.dart';
 import '../tools/tool_registry.dart';
 import 'app_actions.dart';
-import 'app_menu_bar.dart';
 import 'canvas_view.dart';
 import 'color_panel.dart';
 import 'status_bar.dart';
 import 'tool_options_bar.dart';
 import 'tool_palette.dart';
+import 'window_bar.dart';
 
 /// The window layout: menu, tool options, palette, canvas, colours, status.
 class AppShell extends StatefulWidget {
@@ -71,34 +71,41 @@ class _AppShellState extends State<AppShell> with WindowListener {
 
     return _ShortcutScope(
       child: Scaffold(
-        body: Column(
+        body: Stack(
           children: <Widget>[
-            const AppMenuBar(),
-            const Divider(height: 1),
-            const ToolOptionsBar(),
-            const Divider(height: 1),
-            Expanded(
-              child: Row(
-                // Stretch, or the palette sizes itself to its icons and floats
-                // in the vertical middle instead of starting at the top.
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  const ToolPalette(),
-                  const VerticalDivider(width: 1),
-                  Expanded(
-                    child: _DropTarget(
-                      dragging: _dragging,
-                      onDraggingChanged: (value) =>
-                          setState(() => _dragging = value),
-                    ),
+            Column(
+              children: <Widget>[
+                const WindowBar(),
+                const Divider(height: 1),
+                const ToolOptionsBar(),
+                const Divider(height: 1),
+                Expanded(
+                  child: Row(
+                    // Stretch, or the palette sizes itself to its icons and floats
+                    // in the vertical middle instead of starting at the top.
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const ToolPalette(),
+                      const VerticalDivider(width: 1),
+                      Expanded(
+                        child: _DropTarget(
+                          dragging: _dragging,
+                          onDraggingChanged: (value) =>
+                              setState(() => _dragging = value),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const Divider(height: 1),
+                const ColorPanel(),
+                const Divider(height: 1),
+                const StatusBar(),
+              ],
             ),
-            const Divider(height: 1),
-            const ColorPanel(),
-            const Divider(height: 1),
-            const StatusBar(),
+            // Above the content so the grips are reachable even where a panel
+            // reaches the window edge.
+            const WindowResizeEdges(),
           ],
         ),
       ),

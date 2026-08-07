@@ -316,6 +316,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get colorInvalidHex => 'Enter a color like #3366FF';
 
   @override
+  String get windowMinimize => 'Minimize';
+
+  @override
+  String get windowMaximize => 'Maximize';
+
+  @override
+  String get windowRestore => 'Restore';
+
+  @override
+  String get windowClose => 'Close';
+
+  @override
   String get themeSystem => 'Follow system';
 
   @override

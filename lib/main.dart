@@ -48,7 +48,10 @@ Future<void> main(List<String> args) async {
       minimumSize: Size(720, 520),
       center: true,
       title: 'Paint',
-      titleBarStyle: TitleBarStyle.normal,
+      // The title bar is drawn by the application instead, so the menus,
+      // the document name and the window buttons share one themed row.
+      // See lib/ui/window_bar.dart.
+      titleBarStyle: TitleBarStyle.hidden,
     ),
     () async {
       // Intercept the close button so unsaved changes can be rescued.

@@ -104,7 +104,12 @@ you are running — it matches your own shell and kills the session.
    the one it displaced. History keeps its own copies (`.clone()` for
    `CanvasEdit`), so document images can be disposed freely.
 
-9. **Keyboard shortcuts and text input conflict.** Unmodified bindings are
+9. **The window is undecorated.** `main.dart` sets `TitleBarStyle.hidden` and
+   `lib/ui/window_bar.dart` draws the title bar, so moving, maximising and
+   resizing are the application's job — `WindowResizeEdges` provides the grips.
+   Anything placed at the very edge of the window competes with them.
+
+10. **Keyboard shortcuts and text input conflict.** Unmodified bindings are
    withdrawn while `CanvasController.textSession` is open, because handling a
    key here stops it reaching the text input plugin. If you add an unmodified
    shortcut, put it inside that guard in `lib/ui/app_shell.dart`.
