@@ -482,6 +482,15 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  slate_ui:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "v0.2.0"
+      resolved-ref: "3d50553948d989c960eee107112e3080bc7ba9f2"
+      url: "https://github.com/alpinsuite/ui-kit.git"
+    source: git
+    version: "0.2.0"
   source_span:
     dependency: transitive
     description:

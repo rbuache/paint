@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../slate/slate.dart';
+import 'package:slate_ui/slate_ui.dart';
 
 /// Colours the editor needs that no interface kit can supply.
 ///

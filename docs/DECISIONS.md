@@ -218,10 +218,15 @@ non-trivial.
 
 ## 15. A widget kit of our own, rather than Material's defaults
 
-**Choice.** Every control the user touches is drawn by **Slate**, a kit in
-`lib/slate/` written for this application but holding nothing specific to it.
-Material remains underneath for Scaffold, Navigator, overlays and text
-selection, themed to agree with the kit.
+**Choice.** Every control the user touches is drawn by **Slate**, a kit written
+for this application but holding nothing specific to it. Material remains
+underneath for Scaffold, Navigator, overlays and text selection, themed to agree
+with the kit.
+
+**Since.** The kit lived in `lib/slate/` until it was extracted into the
+[slate_ui](https://github.com/alpinsuite/ui-kit) package, which is what the wall
+described below was built to allow. It is now a pinned dependency rather than a
+directory, and the rest of this entry reads the same either way.
 
 **Why.** Material 3 is a good design system for the phone it was drawn for. On a
 desktop editor it reads wrong in a way that is hard to theme away rather than
@@ -237,12 +242,13 @@ dozen small widgets and one palette; that is less code than the theme overrides
 it replaced, and it puts every visual decision in one readable place.
 
 **Why it is walled off.** No controller, model, localisation or image-editor
-concept may be imported into `lib/slate/`, and no user-facing string may be
-written there — labels and tooltips are parameters. The immediate benefit is
-that the kit can become a package without unpicking the editor from it. The
-larger one is that the wall keeps the kit general: a widget that cannot name a
-Paint concept cannot quietly grow a dependency on one, which is exactly the drift
-that turns a design system back into application code.
+concept may be imported into the kit, and no user-facing string may be written
+there — labels and tooltips are parameters. The immediate benefit was that the
+kit could become a package without unpicking the editor from it, which is what
+happened. The larger one is that the wall keeps the kit general: a widget that
+cannot name a Paint concept cannot quietly grow a dependency on one, which is
+exactly the drift that turns a design system back into application code. The
+package boundary now enforces mechanically what was previously a rule here.
 
 **The trade.** Accessibility and keyboard navigation that Material's buttons
 give for free are ours to supply. `SlateIconButton` requires a tooltip rather

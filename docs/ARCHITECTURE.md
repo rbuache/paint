@@ -18,16 +18,15 @@ lib/
   tools/                    one file per family of tools
   ops/                      pure pixel operations, no Flutter widgets
   io/                       codecs, file dialogs, clipboard
-  slate/                    the widget kit; knows nothing about this app
   ui/                       widgets
   l10n/                     app_en.arb + generated AppLocalizations
 ```
 
-The dependency direction is one-way: `ui` → `controller` → `model`/`ops`/`core`,
-and `ui` → `slate`. Nothing in `ops/` or `model/` imports a widget, which is what
-makes them straightforward to unit test without a widget binding; nothing in
-`slate/` imports anything from the rest of the application, which is what keeps
-it liftable into its own package.
+The dependency direction is one-way: `ui` → `controller` → `model`/`ops`/`core`.
+Nothing in `ops/` or `model/` imports a widget, which is what makes them
+straightforward to unit test without a widget binding. `ui` also depends on the
+`slate_ui` package, which cannot import anything from here at all now that it
+lives in a repository of its own.
 
 ## State
 
@@ -183,18 +182,22 @@ into place before it becomes part of the image.
 
 ## The interface kit
 
-Everything the user sees is drawn with **Slate**, a widget kit in `lib/slate/`
-with its own [README](../lib/slate/README.md). It supplies the palette, the
-metrics, a path-drawn icon set and the controls: menus, selects, buttons,
-checkboxes, sliders, fields, separators and dialogs.
+Everything the user sees is drawn with **Slate**, the `slate_ui` package from
+[alpinsuite/ui-kit](https://github.com/alpinsuite/ui-kit), pinned to a tag in
+`pubspec.yaml`. It supplies the palette, the metrics, a path-drawn icon set and
+the controls: menus, selects, buttons, checkboxes, sliders, fields, separators
+and dialogs.
 
 The rule that gives it its shape is that it holds nothing specific to this
 application. No controller, no model, no `AppLocalizations`, no image-editor
 concept, and no user-facing string literal — every label and tooltip is a
-parameter, so the caller owns translation. That is what allows it to become a
-package later without unpicking the editor from it, and it is also what keeps
-the kit honest: a widget that cannot name a Paint concept cannot quietly grow a
-dependency on one.
+parameter, so the caller owns translation. Holding that line from the start is
+what let the kit be lifted out in one piece, and the package boundary now
+enforces what was previously a rule: a widget that cannot name a Paint concept
+cannot quietly grow a dependency on one.
+
+Changing a colour, a metric or a control is a change in that repository, a
+release, and a `ref` bump here.
 
 Material is not discarded. `SlateThemeData.toMaterialTheme()` produces a
 `ThemeData` in the same palette, because an app still gets Scaffold, Navigator,

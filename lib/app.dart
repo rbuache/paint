@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:slate_ui/slate_ui.dart';
 
 import 'core/settings/settings_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'l10n/generated/app_localizations.dart';
-import 'slate/slate.dart';
 import 'ui/app_shell.dart';
 
 /// Root widget: theme, localisation and the window shell.

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:slate_ui/slate_ui.dart';
 
 import '../core/theme/app_theme.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../model/tool_settings.dart';
-import '../slate/slate.dart';
 import '../tools/tool_registry.dart';
 import 'tool_labels.dart';
 
