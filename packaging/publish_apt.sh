@@ -297,7 +297,7 @@ sudo apt install paint</code></pre>
      anything newer.</p>
 
   <footer>
-    <span>Paint $DEB_VERSION &middot; MIT licensed</span>
+    <span>Paint $DEB_VERSION &middot; GPL-3.0-or-later</span>
     <span><a href="https://github.com/rbuache/paint">Source code</a> &middot;
           <a href="https://github.com/rbuache/paint/releases">All releases</a></span>
   </footer>

@@ -1093,7 +1093,7 @@ abstract class AppLocalizations {
   /// Licence line in the About dialog
   ///
   /// In en, this message translates to:
-  /// **'Released under the MIT License.'**
+  /// **'Released under the GNU General Public License, version 3 or later.'**
   String get aboutLicense;
 
   /// Help menu command that checks the repository immediately

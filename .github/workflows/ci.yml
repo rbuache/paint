@@ -73,7 +73,14 @@ jobs:
     # Release binaries are built against glibc 2.35 so they run on Ubuntu
     # 22.04+ and Debian 12+. Building on the runner's own 24.04 would hard-
     # require glibc 2.39 and exclude every one of those.
-    container: ubuntu:22.04
+    # Pinned by digest, not by tag. `ubuntu:22.04` floats: the image behind it
+    # is rebuilt, and in a year nobody can reconstruct the environment this
+    # release was built in. A digest is the only form of "same container" that
+    # survives time, and every reproducibility claim depends on it.
+    #
+    # To move it, resolve the tag and paste the manifest-list digest:
+    #   curl -fsSL https://hub.docker.com/v2/repositories/library/ubuntu/tags/22.04 | jq -r .digest
+    container: ubuntu@sha256:2edbbc5dc405e9612ba3584ce95480277e3eb374407b5505fe26f17df77c7dbc   # 22.04
     steps:
       - name: Install toolchain
         # jq is needed by subosito/flutter-action's setup script and is not in
@@ -167,6 +174,21 @@ jobs:
           mkdir -p build/dist
           tar -czf "build/dist/paint-${VERSION}-linux-x64.tar.gz" \
             -C build/linux/x64/release/bundle .
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Software Bill of Materials
+        # CycloneDX, resolved from pubspec.lock and written in the same job
+        # that produced the .deb, so it describes this build rather than
+        # somebody's laptop. --check is the gate: it fails on a missing,
+        # stale, or incomplete SBOM.
+        env:
+          SBOM_OUT: build/dist/sbom.cdx.json
+        run: |
+          bash tools/sbom.sh
+          bash tools/sbom.sh --check
 
       - uses: actions/upload-artifact@v4
         with:

@@ -2,7 +2,7 @@
 <component type="desktop-application">
   <id>io.github.rbuache.Paint</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>MIT</project_license>
+  <project_license>GPL-3.0-or-later</project_license>
 
   <name>Paint</name>
   <summary>A simple, easy-to-use image editor</summary>

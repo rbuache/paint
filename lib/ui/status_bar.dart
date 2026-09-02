@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:slate_ui/slate_ui.dart';
 
 import '../controller/canvas_controller.dart';
 import '../controller/document_controller.dart';
@@ -11,7 +12,6 @@ import '../controller/selection_controller.dart';
 import '../controller/update_controller.dart';
 import '../controller/viewport_controller.dart';
 import '../l10n/generated/app_localizations.dart';
-import '../slate/slate.dart';
 import 'app_actions.dart';
 
 /// Cursor position, image size and zoom, along the bottom edge.

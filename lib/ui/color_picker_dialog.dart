@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:slate_ui/slate_ui.dart';
 
 import '../core/theme/app_theme.dart';
 import '../l10n/generated/app_localizations.dart';
-import '../slate/slate.dart';
 
 /// Opens the colour editor and returns the chosen colour, or null on cancel.
 Future<Color?> showColorPickerDialog(BuildContext context, Color initial) {

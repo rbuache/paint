@@ -307,7 +307,7 @@
   "@unitPoints": {
     "description": "Abbreviation for typographic points, shown after a font size"
   },
-  "aboutLicense": "Released under the MIT License.",
+  "aboutLicense": "Released under the GNU General Public License, version 3 or later.",
   "@aboutLicense": {
     "description": "Licence line in the About dialog"
   },

@@ -7,6 +7,21 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- **Relicensed to GPL-3.0-or-later.** Anyone may still use, study, modify and
+  redistribute Paint. What changes is that a redistributed copy, modified or
+  not, has to carry its source and the same freedoms with it, so nobody can
+  build a closed product on this one. Running it, and changing it for your own
+  use, carry no obligation at all. Releases up to and including 0.2.0 were
+  published under the MIT License and stay available under it; this applies
+  from the next release onward.
+
+- The widget kit the interface is drawn with now comes from the `slate_ui`
+  package ([alpinsuite/ui-kit](https://github.com/alpinsuite/ui-kit)) instead of
+  a copy in `lib/slate/`. Nothing about the interface changes; the code that
+  draws it simply lives somewhere else, pinned to a tag.
+
 ## [0.2.0] - 2026-08-07
 
 ### Added
@@ -77,7 +92,8 @@ First release: a complete, usable editor with parity against classic MS Paint.
   maximises, and the window edges resize as usual.
 - **Appearance** — a restrained light or dark theme that can follow the desktop,
   drawn with **Slate**, a compact widget kit written for this application and
-  kept free of anything specific to it, in [`lib/slate/`](lib/slate/README.md).
+  kept free of anything specific to it, in `lib/slate/` — since extracted into
+  the [slate_ui](https://github.com/alpinsuite/ui-kit) package.
   Menus, dropdowns, dialogs, buttons, sliders and separators are one coherent
   set rather than Material's defaults: flat surfaces, hairline rules instead of
   elevation, tight rows, and a thin icon set drawn as paths so every glyph

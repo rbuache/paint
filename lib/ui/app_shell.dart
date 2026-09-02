@@ -2,6 +2,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:slate_ui/slate_ui.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../controller/canvas_controller.dart';
@@ -10,7 +11,6 @@ import '../controller/update_controller.dart';
 import '../io/image_codecs.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../model/tool_settings.dart';
-import '../slate/slate.dart';
 import '../tools/tool_registry.dart';
 import 'app_actions.dart';
 import 'canvas_view.dart';
