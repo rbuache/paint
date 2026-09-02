@@ -540,7 +540,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unitPoints => 'pt';
 
   @override
-  String get aboutLicense => 'Released under the MIT License.';
+  String get aboutLicense =>
+      'Released under the GNU General Public License, version 3 or later.';
 
   @override
   String get actionCheckUpdatesNow => 'Check for Updates Now';

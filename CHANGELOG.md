@@ -9,6 +9,14 @@ and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Relicensed to GPL-3.0-or-later.** Anyone may still use, study, modify and
+  redistribute Paint. What changes is that a redistributed copy, modified or
+  not, has to carry its source and the same freedoms with it, so nobody can
+  build a closed product on this one. Running it, and changing it for your own
+  use, carry no obligation at all. Releases up to and including 0.2.0 were
+  published under the MIT License and stay available under it; this applies
+  from the next release onward.
+
 - The widget kit the interface is drawn with now comes from the `slate_ui`
   package ([alpinsuite/ui-kit](https://github.com/alpinsuite/ui-kit)) instead of
   a copy in `lib/slate/`. Nothing about the interface changes; the code that

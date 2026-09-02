@@ -82,6 +82,21 @@ jobs:
         continue-on-error: true
         run: bash packaging/build_appimage.sh
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Software Bill of Materials
+        # CycloneDX, resolved from pubspec.lock and written in the same job
+        # that produced the .deb, so it describes this build rather than
+        # somebody's laptop. --check is the gate: it fails on a missing,
+        # stale, or incomplete SBOM.
+        env:
+          SBOM_OUT: build/dist/sbom.cdx.json
+        run: |
+          bash tools/sbom.sh
+          bash tools/sbom.sh --check
+
       - uses: actions/upload-artifact@v4
         with:
           name: release-packages
